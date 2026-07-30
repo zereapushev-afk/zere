@@ -5,13 +5,18 @@ type ArtworkCardProps = {
   isFavorite: boolean;
   onFavorite: () => void;
   onTrade: () => void;
+  showTrade?: boolean;
 };
 
-export function ArtworkCard({ artwork, isFavorite, onFavorite, onTrade }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isFavorite, onFavorite, onTrade, showTrade = true }: ArtworkCardProps) {
   return (
     <article className="art-card">
       <div className="art-card__visual" style={{ backgroundColor: artwork.color }}>
-        <span aria-hidden="true">{artwork.image}</span>
+        {artwork.imageUrl ? (
+          <img src={artwork.imageUrl} alt={artwork.title} />
+        ) : (
+          <span aria-hidden="true">✦</span>
+        )}
         <button
           className={`favorite ${isFavorite ? 'favorite--active' : ''}`}
           onClick={onFavorite}
@@ -28,9 +33,11 @@ export function ArtworkCard({ artwork, isFavorite, onFavorite, onTrade }: Artwor
         <h3>{artwork.title}</h3>
         <p className="author">Автор: {artwork.author}</p>
         <p className="offer">{artwork.offer}</p>
-        <button className="trade-link" onClick={onTrade}>
-          Предложить обмен <span>→</span>
-        </button>
+        {showTrade && (
+          <button className="trade-link" onClick={onTrade}>
+            Предложить обмен <span>→</span>
+          </button>
+        )}
       </div>
     </article>
   );

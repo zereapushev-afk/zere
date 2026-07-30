@@ -11,11 +11,13 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated }: Si
   return (
     <header className="site-header">
       <Link className="brand" href="/">
-        <span className="brand__mark">о</span>
-        <span>обмен</span>
+        <span className="brand__mark">A</span>
+        <span>Art Swap</span>
       </Link>
       <nav className="site-nav" aria-label="Основная навигация">
-        <a href="#gallery">Работы</a>
+        <Link href="/#gallery">Все работы</Link>
+        <Link href="/favorites">Нравится</Link>
+        <Link href="/profile">Профиль</Link>
       </nav>
       <button className="header-auth" onClick={isAuthenticated ? onSignOut : onAuth}>
         {isAuthenticated ? 'Выйти' : 'Регистрация'}

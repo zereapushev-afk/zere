@@ -1,36 +1,116 @@
+import { useState, type FormEvent } from 'react';
+import { supabase } from '../lib/supabase';
+
 type PublishModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onPublished: () => void;
 };
 
-export function PublishModal({ isOpen, onClose }: PublishModalProps) {
+export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   if (!isOpen) return null;
 
+  function handleClose() {
+    if (isUploading) return;
+    setSelectedFile(null);
+    setMessage('');
+    onClose();
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsUploading(true);
+    setMessage('');
+
+    const form = new FormData(event.currentTarget);
+    const title = String(form.get('title') ?? '').trim();
+    const category = String(form.get('category') ?? '');
+    const offer = String(form.get('offer') ?? '').trim();
+    const file = selectedFile;
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!file || file.size === 0 || !userData.user) {
+      setMessage('Выбери файл и попробуй ещё раз.');
+      setIsUploading(false);
+      return;
+    }
+
+    const safeName = file.name.replace(/[^a-zA-Zа-яА-ЯёЁ0-9._-]/g, '_');
+    const filePath = `${userData.user.id}/${crypto.randomUUID()}-${safeName}`;
+    const { error: uploadError } = await supabase.storage.from('artworks').upload(filePath, file);
+
+    if (uploadError) {
+      setMessage('Не получилось загрузить файл. Попробуй ещё раз.');
+      setIsUploading(false);
+      return;
+    }
+
+    const { error: entryError } = await supabase
+      .from('entries')
+      .insert({ title, category, offer, file_path: filePath });
+    if (entryError) {
+      await supabase.storage.from('artworks').remove([filePath]);
+      setMessage('Не получилось сохранить публикацию. Попробуй ещё раз.');
+      setIsUploading(false);
+      return;
+    }
+
+    setIsUploading(false);
+    setSelectedFile(null);
+    onPublished();
+    onClose();
+  }
+
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+    <div className="modal-backdrop" role="presentation" onMouseDown={handleClose}>
       <section className="modal" role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="modal__close" onClick={onClose} aria-label="Закрыть">×</button>
+        <button className="modal__close" onClick={handleClose} aria-label="Закрыть">×</button>
         <span className="eyebrow">Новая публикация</span>
         <h2>Покажи свою работу</h2>
-        <p>Добавь описание и расскажи, что хочешь получить в обмен.</p>
-        <label>
-          Название
-          <input placeholder="Название работы" />
-        </label>
-        <label>
-          Категория
-          <select defaultValue="">
-            <option value="" disabled>Выбери категорию</option>
-            <option>Анимация</option>
-            <option>Музыка</option>
-            <option>Иллюстрация</option>
-          </select>
-        </label>
-        <label>
-          Что хочешь получить?
-          <textarea placeholder="Опиши желаемый обмен" rows={3} />
-        </label>
-        <button className="button" onClick={onClose}>Опубликовать</button>
+        <p>Загрузи работу в любом формате, добавь описание и расскажи, что хочешь получить в обмен.</p>
+        <form onSubmit={handleSubmit}>
+          <label>
+            Название
+            <input name="title" placeholder="Название работы" required />
+          </label>
+          <label>
+            Файл работы
+            <input
+              name="artwork"
+              type="file"
+              required={!selectedFile}
+              disabled={Boolean(selectedFile)}
+              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+            />
+            {selectedFile ? (
+              <small className="selected-file">✓ Файл выбран: {selectedFile.name}</small>
+            ) : (
+              <small className="field-hint">Можно выбрать только один файл.</small>
+            )}
+          </label>
+          <label>
+            Категория
+            <select name="category" defaultValue="" required>
+              <option value="" disabled>Выбери категорию</option>
+              <option>Анимация</option>
+              <option>Музыка</option>
+              <option>Иллюстрация</option>
+              <option>Другое</option>
+            </select>
+          </label>
+          <label>
+            Что хочешь получить?
+            <textarea name="offer" placeholder="Опиши желаемый обмен" rows={3} />
+          </label>
+          {message && <p className="message" role="alert">{message}</p>}
+          <button className="button" type="submit" disabled={isUploading}>
+            {isUploading ? 'Загружаю…' : 'Опубликовать'}
+          </button>
+        </form>
       </section>
     </div>
   );

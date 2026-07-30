@@ -1,14 +1,14 @@
 export type Artwork = {
-  id: number;
+  id: string;
   title: string;
   author: string;
   category: string;
   city: string;
-  image: string;
+  imageUrl?: string;
   offer: string;
   color: string;
 };
 
-export const categories = ['Все работы', 'Анимация', 'Музыка', 'Иллюстрация'];
+export const categories = ['Все работы', 'Анимация', 'Музыка', 'Иллюстрация', 'Другое'];
 
 export const artworks: Artwork[] = [];

@@ -7,10 +7,12 @@ type AuthProps = {
   onSuccess?: () => void;
 };
 
-function isPasswordTooWeak(password: string) {
-  const hasLetters = /[A-Za-zА-Яа-яЁё]/.test(password);
-  const hasNumbers = /\d/.test(password);
-  return password.length < 8 || !hasLetters || !hasNumbers;
+function getPasswordIssues(password: string) {
+  const issues: string[] = [];
+  if (password.length < 8) issues.push(`${8 - password.length} симв.`);
+  if (!/[A-Za-zА-Яа-яЁё]/.test(password)) issues.push('букв');
+  if (!/\d/.test(password)) issues.push('цифр');
+  return issues;
 }
 
 export function Auth({ initialMode = 'signup', onSuccess }: AuthProps) {
@@ -24,8 +26,9 @@ export function Auth({ initialMode = 'signup', onSuccess }: AuthProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (mode === 'signup' && isPasswordTooWeak(password)) {
-      setMessage('Пароль слишком лёгкий. Используй минимум 8 символов, буквы и цифры.');
+    const passwordIssues = getPasswordIssues(password);
+    if (mode === 'signup' && passwordIssues.length > 0) {
+      setMessage(`Пароль слишком лёгкий. Не хватает: ${passwordIssues.join(', ')}.`);
       return;
     }
 
@@ -51,9 +54,27 @@ export function Auth({ initialMode = 'signup', onSuccess }: AuthProps) {
     }
   }
 
+  async function handleGoogleAuth() {
+    setBusy(true);
+    setMessage('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) {
+      setMessage('Не получилось войти через Google. Попробуй ещё раз.');
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="auth-form">
       <h2>{mode === 'signin' ? 'Вход' : 'Регистрация'}</h2>
+      <button className="google-auth" type="button" onClick={handleGoogleAuth} disabled={busy}>
+        <span aria-hidden="true">G</span>
+        {mode === 'signin' ? 'Войти через Google' : 'Регистрация через Google'}
+      </button>
+      <div className="auth-divider"><span>или по email</span></div>
       <form onSubmit={handleSubmit} className="form">
         <input
           type="email"
@@ -70,7 +91,6 @@ export function Auth({ initialMode = 'signup', onSuccess }: AuthProps) {
             setPassword(e.target.value);
             setMessage('');
           }}
-          minLength={mode === 'signup' ? 8 : 6}
           required
         />
         <button type="submit" disabled={busy}>

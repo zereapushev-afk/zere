@@ -1,0 +1,77 @@
+import type { Artwork } from '../data/artworks';
+
+type ArtworkGalleryProps = {
+  artworks: Artwork[];
+  categories: string[];
+  category: string;
+  query: string;
+  favoriteIds: string[];
+  onCategoryChange: (category: string) => void;
+  onQueryChange: (query: string) => void;
+  onFavorite: (id: string) => void;
+  onTrade: (artwork: Artwork) => void;
+  onPublish: () => void;
+};
+
+import { ArtworkCard } from './ArtworkCard';
+
+export function ArtworkGallery({
+  artworks,
+  categories,
+  category,
+  query,
+  favoriteIds,
+  onCategoryChange,
+  onQueryChange,
+  onFavorite,
+  onTrade,
+  onPublish,
+}: ArtworkGalleryProps) {
+  return (
+    <section className="gallery" id="gallery">
+      <div className="section-heading">
+        <div><span className="eyebrow">Найди что-то своё</span><h2>Свежие работы</h2></div>
+        <input
+          className="search"
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder="Поиск по работам"
+          aria-label="Поиск"
+        />
+      </div>
+      <div className="filters">
+        {categories.map((item) => (
+          <button
+            className={category === item ? 'filter filter--active' : 'filter'}
+            key={item}
+            onClick={() => onCategoryChange(item)}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+      <div className="art-grid">
+        {artworks.map((artwork) => (
+          <ArtworkCard
+            key={artwork.id}
+            artwork={artwork}
+            isFavorite={favoriteIds.includes(artwork.id)}
+            onFavorite={() => onFavorite(artwork.id)}
+            onTrade={() => onTrade(artwork)}
+          />
+        ))}
+      </div>
+      {artworks.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-state__art" aria-hidden="true">
+            <span>✦</span><span>♪</span><span>◌</span>
+          </div>
+          <span className="eyebrow">Начни первым</span>
+          <h3>Нет добавленных работ</h3>
+          <p>Здесь появятся творческие работы авторов в самых разных форматах.</p>
+          <button className="button" onClick={onPublish}>Добавить свою работу</button>
+        </div>
+      )}
+    </section>
+  );
+}
