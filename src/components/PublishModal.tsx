@@ -1,5 +1,8 @@
 import { useState, type FormEvent } from 'react';
+import { useLocation } from 'wouter';
+import { checkArtwork, isResultForFile, type AiCheckResult } from '../lib/aiArtworkCheck';
 import { supabase } from '../lib/supabase';
+import { AiCheckNotice } from './AiCheckNotice';
 
 type PublishModalProps = {
   isOpen: boolean;
@@ -8,17 +11,27 @@ type PublishModalProps = {
 };
 
 export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps) {
+  const [, setLocation] = useLocation();
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [checkResult, setCheckResult] = useState<AiCheckResult | null>(null);
 
   if (!isOpen) return null;
 
   function handleClose() {
     if (isUploading) return;
     setSelectedFile(null);
+    setCheckResult(null);
     setMessage('');
     onClose();
+  }
+
+  function handleAppeal() {
+    if (!checkResult?.blocked) return;
+    sessionStorage.setItem('aiAppealScore', String(checkResult.score));
+    handleClose();
+    setLocation('/support');
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -35,6 +48,28 @@ export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps
 
     if (!file || file.size === 0 || !userData.user) {
       setMessage('Выбери файл и попробуй ещё раз.');
+      setIsUploading(false);
+      return;
+    }
+
+    let result = checkResult;
+    if (!result) {
+      setMessage('Проверяем признаки ИИ…');
+      try {
+        result = await checkArtwork(file);
+        setCheckResult(result);
+        setMessage('');
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : 'Не удалось проверить работу.');
+      }
+      setIsUploading(false);
+      return;
+    }
+    if (result.blocked || !isResultForFile(result, file)) {
+      if (!isResultForFile(result, file)) {
+        setCheckResult(null);
+        setMessage('Файл изменился. Проверь его ещё раз.');
+      }
       setIsUploading(false);
       return;
     }
@@ -71,7 +106,7 @@ export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps
         <button className="modal__close" onClick={handleClose} aria-label="Закрыть">×</button>
         <span className="eyebrow">Новая публикация</span>
         <h2>Покажи свою работу</h2>
-        <p>Загрузи работу в любом формате, добавь описание и расскажи, что хочешь получить в обмен.</p>
+        <p>Загрузи изображение, пройди проверку и расскажи, что хочешь получить в обмен.</p>
         <form onSubmit={handleSubmit}>
           <label>
             Название
@@ -82,9 +117,14 @@ export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps
             <input
               name="artwork"
               type="file"
+              accept="image/*"
               required={!selectedFile}
               disabled={Boolean(selectedFile)}
-              onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                setSelectedFile(event.target.files?.[0] ?? null);
+                setCheckResult(null);
+                setMessage('');
+              }}
             />
             {selectedFile ? (
               <small className="selected-file">✓ Файл выбран: {selectedFile.name}</small>
@@ -92,6 +132,7 @@ export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps
               <small className="field-hint">Можно выбрать только один файл.</small>
             )}
           </label>
+          {checkResult && <AiCheckNotice result={checkResult} />}
           <label>
             Категория
             <select name="category" defaultValue="" required>
@@ -107,9 +148,20 @@ export function PublishModal({ isOpen, onClose, onPublished }: PublishModalProps
             <textarea name="offer" placeholder="Опиши желаемый обмен" rows={3} />
           </label>
           {message && <p className="message" role="alert">{message}</p>}
-          <button className="button" type="submit" disabled={isUploading}>
-            {isUploading ? 'Загружаю…' : 'Опубликовать'}
-          </button>
+          {checkResult?.blocked ? (
+            <div className="ai-check__actions">
+              <button className="button" type="button" onClick={handleClose}>Выйти</button>
+              <button className="button button--outline" type="button" onClick={handleAppeal}>
+                Подать апелляцию
+              </button>
+            </div>
+          ) : (
+            <button className="button" type="submit" disabled={isUploading}>
+              {isUploading
+                ? (checkResult ? 'Загружаем…' : 'Проверяем…')
+                : (checkResult ? `Опубликовать (ИИ: ${checkResult.score}%)` : 'Проверить работу')}
+            </button>
+          )}
         </form>
       </section>
     </div>

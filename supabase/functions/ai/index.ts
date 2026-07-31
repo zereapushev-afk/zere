@@ -39,12 +39,19 @@ Deno.serve(async (req) => {
       return json({ error: 'AI пока не настроен. Попроси наставника проверить секрет.' }, 503);
     }
 
-    const body = (await req.json()) as { prompt?: unknown; system?: unknown };
+    const body = (await req.json()) as {
+      prompt?: unknown;
+      system?: unknown;
+      imageBase64?: unknown;
+      mimeType?: unknown;
+    };
     const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
     const system = typeof body.system === 'string' ? body.system.trim() : '';
+    const imageBase64 = typeof body.imageBase64 === 'string' ? body.imageBase64 : '';
+    const mimeType = typeof body.mimeType === 'string' ? body.mimeType : 'image/jpeg';
 
     if (!prompt) return json({ error: 'Напиши запрос для AI.' }, 400);
-    if (prompt.length > 10_000 || system.length > 5_000) {
+    if (prompt.length > 10_000 || system.length > 5_000 || imageBase64.length > 12_000_000) {
       return json({ error: 'Запрос слишком длинный. Сделай его короче.' }, 400);
     }
 
@@ -55,7 +62,12 @@ Deno.serve(async (req) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           systemInstruction: system ? { parts: [{ text: system }] } : undefined,
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{
+            parts: [
+              { text: prompt },
+              ...(imageBase64 ? [{ inlineData: { mimeType, data: imageBase64 } }] : []),
+            ],
+          }],
         }),
       },
     );

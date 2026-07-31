@@ -1,0 +1,19 @@
+.ai-check {
+  display: grid;
+  gap: 7px;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ai-check--passed { border-color: #7c9a62; background: #edf5e5; }
+.ai-check--blocked { border-color: #c16f68; background: #fae8e6; }
+.ai-check span, .ai-check small { color: var(--text); }
+.ai-check ul { margin: 0; padding-left: 18px; }
+
+.ai-check__actions { display: grid; gap: 10px; }
+.button--outline { border: 1px solid var(--primary); background: transparent; color: var(--primary); }
+.button--outline:hover { background: var(--primary); color: var(--cream); }

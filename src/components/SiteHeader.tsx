@@ -18,6 +18,7 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated }: Si
         <Link href="/#gallery">Все работы</Link>
         <Link href="/favorites">Нравится</Link>
         <Link href="/profile">Профиль</Link>
+        <Link href="/support">Поддержка</Link>
       </nav>
       <button className="header-auth" onClick={isAuthenticated ? onSignOut : onAuth}>
         {isAuthenticated ? 'Выйти' : 'Регистрация'}

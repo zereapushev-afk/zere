@@ -1,4 +1,5 @@
 import type { Artwork } from '../data/artworks';
+import { ArtworkMenu } from './ArtworkMenu';
 
 type ArtworkCardProps = {
   artwork: Artwork;
@@ -6,9 +7,19 @@ type ArtworkCardProps = {
   onFavorite: () => void;
   onTrade: () => void;
   showTrade?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
-export function ArtworkCard({ artwork, isFavorite, onFavorite, onTrade, showTrade = true }: ArtworkCardProps) {
+export function ArtworkCard({
+  artwork,
+  isFavorite,
+  onFavorite,
+  onTrade,
+  showTrade = true,
+  onEdit,
+  onDelete,
+}: ArtworkCardProps) {
   return (
     <article className="art-card">
       <div className="art-card__visual" style={{ backgroundColor: artwork.color }}>
@@ -17,13 +28,17 @@ export function ArtworkCard({ artwork, isFavorite, onFavorite, onTrade, showTrad
         ) : (
           <span aria-hidden="true">✦</span>
         )}
-        <button
-          className={`favorite ${isFavorite ? 'favorite--active' : ''}`}
-          onClick={onFavorite}
-          aria-label="Добавить в избранное"
-        >
-          {isFavorite ? '♥' : '♡'}
-        </button>
+        {onEdit && onDelete ? (
+          <ArtworkMenu onEdit={onEdit} onDelete={onDelete} />
+        ) : (
+          <button
+            className={`favorite ${isFavorite ? 'favorite--active' : ''}`}
+            onClick={onFavorite}
+            aria-label="Добавить в избранное"
+          >
+            {isFavorite ? '♥' : '♡'}
+          </button>
+        )}
       </div>
       <div className="art-card__body">
         <div className="art-card__meta">

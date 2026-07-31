@@ -1,0 +1,23 @@
+.simple-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 82px;
+  padding: 0 max(24px, calc((100vw - 1160px) / 2));
+  border-bottom: 1px solid var(--accent);
+}
+
+.support-page {
+  width: min(680px, calc(100% - 40px));
+  margin: auto;
+  padding: 80px 0;
+}
+
+.support-page h1 { margin: 12px 0; font-size: clamp(42px, 8vw, 72px); line-height: 1; }
+.support-page > p { line-height: 1.6; }
+.support-card { display: grid; gap: 18px; margin-top: 32px; padding: 28px; border-radius: 18px; background: var(--accent); }
+.support-card label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
+.support-card textarea { width: 100%; padding: 14px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); color: var(--text); resize: vertical; }
+.support-card input[type='file'] { width: 100%; padding: 12px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); }
+.support-card small { font-weight: 400; line-height: 1.5; }
+.support-card .button { justify-self: start; }

@@ -1,4 +1,6 @@
 @import './styles/marketplace.css';
+@import './styles/ai-check.css';
+@import './styles/support.css';
 
 @font-face {
   font-family: 'Comfortaa';

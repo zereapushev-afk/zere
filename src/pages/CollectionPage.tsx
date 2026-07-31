@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { ArtworkCard } from '../components/ArtworkCard';
 import { AuthModal } from '../components/AuthModal';
+import { EditArtworkModal } from '../components/EditArtworkModal';
 import { PublishModal } from '../components/PublishModal';
 import { SiteHeader } from '../components/SiteHeader';
 import type { Artwork } from '../data/artworks';
-import { loadArtworks } from '../lib/artworks';
+import { deleteArtwork, loadArtworks } from '../lib/artworks';
 import { loadFavoriteIds, setFavorite } from '../lib/favorites';
 import { supabase } from '../lib/supabase';
 
@@ -19,6 +20,7 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null);
 
   const refresh = useCallback(async (activeSession: Session | null) => {
     if (!activeSession) {
@@ -60,6 +62,18 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
     }
   }
 
+  async function removeArtwork(artwork: Artwork) {
+    const shouldDelete = window.confirm(`Удалить работу «${artwork.title}»? Это действие нельзя отменить.`);
+    if (!shouldDelete) return;
+
+    try {
+      await deleteArtwork(artwork);
+      await refresh(session);
+    } catch {
+      window.alert('Не получилось удалить работу. Попробуй ещё раз.');
+    }
+  }
+
   const visibleArtworks = favoritesOnly
     ? artworks.filter((artwork) => favoriteIds.includes(artwork.id))
     : artworks;
@@ -85,6 +99,8 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
               onFavorite={() => void toggleFavorite(artwork.id)}
               onTrade={() => undefined}
               showTrade={false}
+              onEdit={favoritesOnly ? undefined : () => setEditingArtwork(artwork)}
+              onDelete={favoritesOnly ? undefined : () => void removeArtwork(artwork)}
             />
           ))}
         </div>
@@ -98,6 +114,11 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
         isOpen={isPublishing}
         onClose={() => setIsPublishing(false)}
         onPublished={() => void refresh(session)}
+      />
+      <EditArtworkModal
+        artwork={editingArtwork}
+        onClose={() => setEditingArtwork(null)}
+        onSaved={() => void refresh(session)}
       />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </>

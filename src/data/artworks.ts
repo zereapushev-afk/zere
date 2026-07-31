@@ -5,6 +5,7 @@ export type Artwork = {
   category: string;
   city: string;
   imageUrl?: string;
+  filePath?: string;
   offer: string;
   color: string;
 };
