@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import { HeaderMenu } from './HeaderMenu';
 
 type SiteHeaderProps = {
   onPublish: () => void;
@@ -23,6 +24,13 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, isDe
         {isAuthenticated && <Link href="/messages">Сообщения</Link>}
         {isDeveloper && <Link href="/developer-support">Ответы</Link>}
       </nav>
+      <HeaderMenu
+        isAuthenticated={isAuthenticated}
+        isDeveloper={isDeveloper}
+        onAuth={onAuth}
+        onPublish={onPublish}
+        onSignOut={onSignOut}
+      />
       <button className="header-auth" onClick={isAuthenticated ? onSignOut : onAuth}>
         {isAuthenticated ? 'Выйти' : 'Регистрация'}
       </button>
