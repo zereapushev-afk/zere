@@ -15,9 +15,34 @@
 
 .support-page h1 { margin: 12px 0; font-size: clamp(42px, 8vw, 72px); line-height: 1; }
 .support-page > p { line-height: 1.6; }
+.support-page section > p { line-height: 1.6; }
+.support-topics { display: grid; gap: 12px; margin-top: 32px; }
+.support-topic {
+  position: relative; display: grid; gap: 6px; width: 100%; padding: 22px 56px 22px 24px;
+  border: 1px solid rgb(88 115 58 / 22%); border-radius: 16px; background: var(--accent);
+  color: var(--text); text-align: left;
+}
+.support-topic:hover { border-color: var(--primary); transform: translateY(-2px); }
+.support-topic span { font-size: 17px; font-weight: 700; }
+.support-topic small { line-height: 1.5; }
+.support-topic b { position: absolute; top: 50%; right: 24px; font-size: 22px; transform: translateY(-50%); }
+.support-back { margin: 22px 0 18px; border: 0; padding: 0; background: transparent; color: var(--primary); font-weight: 700; }
 .support-card { display: grid; gap: 18px; margin-top: 32px; padding: 28px; border-radius: 18px; background: var(--accent); }
 .support-card label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
-.support-card textarea { width: 100%; padding: 14px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); color: var(--text); resize: vertical; }
+.support-card textarea, .support-card input[type='text'], .support-card label > input:not([type]) { width: 100%; padding: 14px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); color: var(--text); }
+.support-card textarea { resize: vertical; }
 .support-card input[type='file'] { width: 100%; padding: 12px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); }
 .support-card small { font-weight: 400; line-height: 1.5; }
 .support-card .button { justify-self: start; }
+.developer-support-page { width: min(860px, calc(100% - 40px)); }
+.support-request-list, .my-support-requests { display: grid; gap: 18px; margin-top: 32px; }
+.my-support-requests { margin-top: 56px; }
+.my-support-requests h2 { margin: 0; font-size: 30px; }
+.support-request { display: grid; gap: 12px; padding: 24px; border: 1px solid rgb(88 115 58 / 22%); border-radius: 18px; background: var(--accent); }
+.support-request p { margin: 0; line-height: 1.55; white-space: pre-wrap; }
+.support-request__meta { display: flex; justify-content: space-between; gap: 16px; }
+.support-request__meta time, .support-request > small { color: rgb(31 48 28 / 65%); font-size: 12px; }
+.support-request form, .support-request label { display: grid; gap: 10px; }
+.support-request textarea { width: 100%; padding: 14px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); color: var(--text); resize: vertical; }
+.support-request form .button { justify-self: start; }
+.support-reply { display: grid; gap: 8px; margin-top: 4px; padding: 16px; border-left: 3px solid var(--primary); background: var(--cream); }

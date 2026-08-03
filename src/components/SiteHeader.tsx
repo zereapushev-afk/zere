@@ -5,9 +5,10 @@ type SiteHeaderProps = {
   onAuth: () => void;
   onSignOut: () => void;
   isAuthenticated: boolean;
+  isDeveloper?: boolean;
 };
 
-export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated }: SiteHeaderProps) {
+export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, isDeveloper = false }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <Link className="brand" href="/">
@@ -19,6 +20,8 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated }: Si
         <Link href="/favorites">Нравится</Link>
         <Link href="/profile">Профиль</Link>
         <Link href="/support">Поддержка</Link>
+        {isAuthenticated && <Link href="/messages">Сообщения</Link>}
+        {isDeveloper && <Link href="/developer-support">Ответы</Link>}
       </nav>
       <button className="header-auth" onClick={isAuthenticated ? onSignOut : onAuth}>
         {isAuthenticated ? 'Выйти' : 'Регистрация'}

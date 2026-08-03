@@ -9,6 +9,7 @@ import { TradeModal } from '../components/TradeModal';
 import { categories, type Artwork } from '../data/artworks';
 import { loadArtworks } from '../lib/artworks';
 import { debugError, debugLog } from '../lib/debug';
+import { isDeveloper } from '../lib/developer';
 import { loadFavoriteIds, setFavorite } from '../lib/favorites';
 import { supabase } from '../lib/supabase';
 import { useGalleryDebug } from '../lib/useGalleryDebug';
@@ -102,6 +103,7 @@ export function HomePage() {
     <>
       <SiteHeader
         isAuthenticated={Boolean(session)}
+        isDeveloper={isDeveloper(session?.user)}
         onAuth={() => setIsAuthOpen(true)}
         onSignOut={() => void supabase.auth.signOut()}
         onPublish={() => requireAuth(() => setIsPublishing(true))}

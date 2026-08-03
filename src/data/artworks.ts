@@ -2,6 +2,8 @@ export type Artwork = {
   id: string;
   title: string;
   author: string;
+  authorId: string;
+  authorAvatarUrl?: string;
   category: string;
   city: string;
   imageUrl?: string;

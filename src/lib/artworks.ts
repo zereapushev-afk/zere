@@ -2,6 +2,7 @@ import type { User } from '@supabase/supabase-js';
 import type { Artwork } from '../data/artworks';
 import { debugError, debugLog } from './debug';
 import { supabase } from './supabase';
+import { getAvatarUrl, loadPublicProfiles } from './profile';
 
 type EntryRow = {
   id: string;
@@ -9,18 +10,21 @@ type EntryRow = {
   category: string | null;
   offer: string | null;
   file_path: string | null;
+  user_id: string;
 };
 
-export async function loadArtworks(user: User | null): Promise<Artwork[]> {
+export async function loadArtworks(user: User | null, ownerId?: string): Promise<Artwork[]> {
   if (!user) {
     debugLog('Загрузка работ пропущена: пользователь не авторизован');
     return [];
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('entries')
-    .select('id, title, category, offer, file_path')
+    .select('id, title, category, offer, file_path, user_id')
     .order('created_at', { ascending: false });
+  if (ownerId) query = query.eq('user_id', ownerId);
+  const { data, error } = await query;
 
   if (error) {
     debugError('Supabase не вернул список работ', error);
@@ -29,8 +33,13 @@ export async function loadArtworks(user: User | null): Promise<Artwork[]> {
 
   debugLog('Записи работ получены из Supabase', { count: data.length });
 
-  return Promise.all((data as EntryRow[]).map(async (entry) => {
+  const entries = data as EntryRow[];
+  const profiles = await loadPublicProfiles([...new Set(entries.map((entry) => entry.user_id))]);
+  const profileMap = new Map(profiles.map((profile) => [profile.user_id, profile]));
+
+  return Promise.all(entries.map(async (entry) => {
     let imageUrl: string | undefined;
+    const profile = profileMap.get(entry.user_id);
 
     if (entry.file_path) {
       const { data: signedFile } = await supabase.storage
@@ -46,7 +55,9 @@ export async function loadArtworks(user: User | null): Promise<Artwork[]> {
     return {
       id: entry.id,
       title: entry.title,
-      author: user.user_metadata.full_name ?? user.email ?? 'Автор',
+      author: profile?.display_name ?? 'Автор',
+      authorId: entry.user_id,
+      authorAvatarUrl: profile?.avatar_path ? (await getAvatarUrl(profile.avatar_path)) ?? undefined : undefined,
       category: entry.category ?? 'Другое',
       city: 'Онлайн',
       imageUrl,

@@ -1,5 +1,7 @@
 import type { Artwork } from '../data/artworks';
+import { ArtworkImage } from './ArtworkImage';
 import { ArtworkMenu } from './ArtworkMenu';
+import { Link } from 'wouter';
 
 type ArtworkCardProps = {
   artwork: Artwork;
@@ -24,7 +26,7 @@ export function ArtworkCard({
     <article className="art-card">
       <div className="art-card__visual" style={{ backgroundColor: artwork.color }}>
         {artwork.imageUrl ? (
-          <img src={artwork.imageUrl} alt={artwork.title} />
+          <ArtworkImage src={artwork.imageUrl} alt={artwork.title} />
         ) : (
           <span aria-hidden="true">✦</span>
         )}
@@ -46,7 +48,10 @@ export function ArtworkCard({
           <span>{artwork.city}</span>
         </div>
         <h3>{artwork.title}</h3>
-        <p className="author">Автор: {artwork.author}</p>
+        <Link className="art-card__author" href={`/users/${artwork.authorId}`}>
+          <span className="author-avatar">{artwork.authorAvatarUrl ? <img src={artwork.authorAvatarUrl} alt="" /> : artwork.author.slice(0, 1).toUpperCase()}</span>
+          <span>{artwork.author}</span>
+        </Link>
         <p className="offer">{artwork.offer}</p>
         {showTrade && (
           <button className="trade-link" onClick={onTrade}>
