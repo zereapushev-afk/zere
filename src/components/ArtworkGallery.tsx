@@ -1,4 +1,7 @@
+import { Fragment } from 'react';
 import type { Artwork } from '../data/artworks';
+import { AdSenseCard } from './AdSenseCard';
+import { ArtworkCard } from './ArtworkCard';
 import { ArtworkGridSkeleton } from './ArtworkGridSkeleton';
 
 type ArtworkGalleryProps = {
@@ -16,8 +19,6 @@ type ArtworkGalleryProps = {
   isLoading: boolean;
   hasAnyArtworks: boolean;
 };
-
-import { ArtworkCard } from './ArtworkCard';
 
 export function ArtworkGallery({
   artworks,
@@ -58,15 +59,17 @@ export function ArtworkGallery({
         ))}
       </div>
       {isLoading ? <ArtworkGridSkeleton /> : <div className="art-grid">
-          {artworks.map((artwork) => (
-            <ArtworkCard
-              key={artwork.id}
-              artwork={artwork}
-              isFavorite={favoriteIds.includes(artwork.id)}
-              onFavorite={() => onFavorite(artwork.id)}
-              onTrade={() => onTrade(artwork)}
-              onModerate={onModerate ? () => onModerate(artwork) : undefined}
-            />
+          {artworks.map((artwork, index) => (
+            <Fragment key={artwork.id}>
+              <ArtworkCard
+                artwork={artwork}
+                isFavorite={favoriteIds.includes(artwork.id)}
+                onFavorite={() => onFavorite(artwork.id)}
+                onTrade={() => onTrade(artwork)}
+                onModerate={onModerate ? () => onModerate(artwork) : undefined}
+              />
+              {(index + 1) % 6 === 0 && <AdSenseCard />}
+            </Fragment>
           ))}
         </div>}
       {!isLoading && artworks.length === 0 && (

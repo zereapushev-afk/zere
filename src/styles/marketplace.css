@@ -94,6 +94,15 @@
 .filter--active { border-color: var(--primary); background: var(--primary); color: var(--cream); }
 .art-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .art-card { overflow: hidden; border: 1px solid rgb(247 200 204 / 70%); border-radius: 12px; background: var(--cream); box-shadow: 0 12px 40px rgb(88 115 58 / 12%); }
+.adsense-card {
+  position: relative; min-width: 0; min-height: 280px; overflow: hidden;
+  border: 1px solid rgb(247 200 204 / 70%); border-radius: 12px; background: rgb(247 200 204 / 18%);
+}
+.adsense-card__label {
+  display: block; padding: 8px 10px 0; color: var(--text); opacity: .65;
+  font-size: 10px; text-align: center; text-transform: uppercase; letter-spacing: .08em;
+}
+.adsense-card .adsbygoogle { min-height: 250px; }
 .art-card__visual { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; }
 .art-card__visual img { width: 100%; height: 100%; object-fit: cover; }
 .art-card__visual > span { font-size: 76px; filter: saturate(.6); }
