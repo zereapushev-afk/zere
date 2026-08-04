@@ -1,11 +1,17 @@
 .simple-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
   height: 82px;
   padding: 0 max(24px, calc((100vw - 1160px) / 2));
   border-bottom: 1px solid var(--accent);
 }
+.simple-header__back {
+  display: grid; place-items: center; width: 42px; height: 42px; padding: 0;
+  border: 1px solid rgb(88 115 58 / 28%); border-radius: 50%; background: transparent;
+  color: var(--primary); font-size: 25px; line-height: 1;
+}
+.simple-header__back:hover { background: var(--accent); }
 
 .support-page {
   width: min(680px, calc(100% - 40px));

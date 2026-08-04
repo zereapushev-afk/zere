@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Link } from 'wouter';
 import { ConversationCard } from '../components/ConversationCard';
+import { SimpleHeader } from '../components/SimpleHeader';
 import { loadDirectMessages, type DirectMessage } from '../lib/messages';
 import { loadPublicProfiles, type UserProfile } from '../lib/profile';
 import { supabase } from '../lib/supabase';
@@ -51,7 +51,7 @@ export function MessagesPage() {
 
   return (
     <>
-      <header className="simple-header"><Link className="brand" href="/"><span className="brand__mark">A</span><span>Art Swap</span></Link><Link href="/">На главную</Link></header>
+      <SimpleHeader />
       <main className="messages-page">
         <span className="eyebrow">Личные сообщения</span><h1>Сообщения</h1>
         {user === undefined || isLoading ? <p>Загружаю сообщения…</p> : !user ? <p className="support-card">Войди в аккаунт, чтобы увидеть сообщения.</p> : error ? <p className="form-error">{error}</p> : conversations.length === 0 ? <p className="support-card">Сообщений пока нет. Открой профиль автора, чтобы написать ему.</p> : conversations.map((conversation) => <ConversationCard key={conversation.partner.user_id} currentUserId={user.id} partner={conversation.partner} messages={conversation.messages} onSent={() => void refresh(user)} />)}

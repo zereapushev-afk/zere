@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Link } from 'wouter';
 import { ModeratedArtworkCard } from '../components/ModeratedArtworkCard';
+import { SimpleHeader } from '../components/SimpleHeader';
 import { isDeveloper } from '../lib/developer';
 import { loadRemovedArtworks, restoreArtwork, submitArtworkAppeal, type RemovedArtwork } from '../lib/moderation';
 import { supabase } from '../lib/supabase';
@@ -47,7 +47,7 @@ export function ModerationPage() {
 
   return (
     <>
-      <header className="simple-header"><Link className="brand" href="/"><span className="brand__mark">A</span><span>Art Swap</span></Link><Link href="/">На главную</Link></header>
+      <SimpleHeader />
       <main className="moderation-page">
         <span className="eyebrow">Модерация</span>
         <h1>{isDeveloper(user) ? 'Удалённые работы' : 'Мои апелляции'}</h1>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Link } from 'wouter';
 import { SupportForm } from '../components/SupportForm';
+import { SimpleHeader } from '../components/SimpleHeader';
 import { MySupportRequests } from '../components/MySupportRequests';
 import { SupportTopicPicker } from '../components/SupportTopicPicker';
 import type { SupportTopic } from '../lib/support';
@@ -24,10 +25,7 @@ export function SupportPage() {
 
   return (
     <>
-      <header className="simple-header">
-        <Link className="brand" href="/"><span className="brand__mark">A</span><span>Art Swap</span></Link>
-        <Link href="/">На главную</Link>
-      </header>
+      <SimpleHeader />
       <main className="support-page">
         <span className="eyebrow">Поддержка</span>
         {!user ? (

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { Link } from 'wouter';
 import { SupportRequestCard } from '../components/SupportRequestCard';
+import { SimpleHeader } from '../components/SimpleHeader';
 import { isDeveloper } from '../lib/developer';
 import { loadSupportRequests, type SupportRequest } from '../lib/support';
 import { supabase } from '../lib/supabase';
@@ -29,10 +29,7 @@ export function DeveloperSupportPage() {
 
   return (
     <>
-      <header className="simple-header">
-        <Link className="brand" href="/"><span className="brand__mark">A</span><span>Art Swap</span></Link>
-        <Link href="/">На главную</Link>
-      </header>
+      <SimpleHeader />
       <main className="support-page developer-support-page">
         <span className="eyebrow">Для разработчика</span>
         <h1>Обращения</h1>

@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import { Link, useParams } from 'wouter';
 import { ArtworkCard } from '../components/ArtworkCard';
 import { MessageComposer } from '../components/MessageComposer';
+import { SimpleHeader } from '../components/SimpleHeader';
 import type { Artwork } from '../data/artworks';
 import { loadArtworks } from '../lib/artworks';
 import { getAvatarUrl, loadPublicProfile, type UserProfile } from '../lib/profile';
@@ -32,7 +33,7 @@ export function PublicProfilePage() {
 
   return (
     <>
-      <header className="simple-header"><Link className="brand" href="/"><span className="brand__mark">A</span><span>Art Swap</span></Link><Link href="/">На главную</Link></header>
+      <SimpleHeader />
       <main className="public-profile-page">
         {!session ? <p className="support-card">Войди в аккаунт, чтобы посмотреть профиль автора.</p> : profile === undefined ? <p>Загружаю…</p> : !profile ? <p className="support-card">Профиль не найден.</p> : (
           <>
