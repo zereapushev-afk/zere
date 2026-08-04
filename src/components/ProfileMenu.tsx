@@ -52,6 +52,7 @@ export function ProfileMenu({ user, onAuth, onSignOut }: ProfileMenuProps) {
           <Link href="/profile" onClick={() => setIsOpen(false)}>Профиль</Link>
           <Link href="/favorites" onClick={() => setIsOpen(false)}>Нравится</Link>
           <Link href="/support" onClick={() => setIsOpen(false)}>Поддержка</Link>
+          <Link href="/moderation" onClick={() => setIsOpen(false)}>Удалённые работы</Link>
           <button type="button" onClick={onSignOut}>Выйти</button>
         </nav>
       )}

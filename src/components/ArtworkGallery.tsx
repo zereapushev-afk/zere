@@ -1,4 +1,5 @@
 import type { Artwork } from '../data/artworks';
+import { ArtworkGridSkeleton } from './ArtworkGridSkeleton';
 
 type ArtworkGalleryProps = {
   artworks: Artwork[];
@@ -11,6 +12,8 @@ type ArtworkGalleryProps = {
   onFavorite: (id: string) => void;
   onTrade: (artwork: Artwork) => void;
   onPublish: () => void;
+  onModerate?: (artwork: Artwork) => void;
+  isLoading: boolean;
 };
 
 import { ArtworkCard } from './ArtworkCard';
@@ -26,6 +29,8 @@ export function ArtworkGallery({
   onFavorite,
   onTrade,
   onPublish,
+  onModerate,
+  isLoading,
 }: ArtworkGalleryProps) {
   return (
     <section className="gallery" id="gallery">
@@ -50,18 +55,19 @@ export function ArtworkGallery({
           </button>
         ))}
       </div>
-      <div className="art-grid">
-        {artworks.map((artwork) => (
-          <ArtworkCard
-            key={artwork.id}
-            artwork={artwork}
-            isFavorite={favoriteIds.includes(artwork.id)}
-            onFavorite={() => onFavorite(artwork.id)}
-            onTrade={() => onTrade(artwork)}
-          />
-        ))}
-      </div>
-      {artworks.length === 0 && (
+      {isLoading ? <ArtworkGridSkeleton /> : <div className="art-grid">
+          {artworks.map((artwork) => (
+            <ArtworkCard
+              key={artwork.id}
+              artwork={artwork}
+              isFavorite={favoriteIds.includes(artwork.id)}
+              onFavorite={() => onFavorite(artwork.id)}
+              onTrade={() => onTrade(artwork)}
+              onModerate={onModerate ? () => onModerate(artwork) : undefined}
+            />
+          ))}
+        </div>}
+      {!isLoading && artworks.length === 0 && (
         <div className="empty-state">
           <div className="empty-state__art" aria-hidden="true">
             <span>✦</span><span>♪</span><span>◌</span>

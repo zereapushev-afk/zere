@@ -9,15 +9,6 @@
   animation: artwork-shimmer 1.2s infinite linear;
 }
 
-.artwork-image-error {
-  position: absolute;
-  max-width: 190px;
-  color: var(--primary);
-  font-size: 13px;
-  line-height: 1.5;
-  text-align: center;
-}
-
 @keyframes artwork-shimmer {
   to { background-position-x: -220%; }
 }

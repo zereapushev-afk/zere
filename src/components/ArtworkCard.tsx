@@ -11,6 +11,7 @@ type ArtworkCardProps = {
   showTrade?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  onModerate?: () => void;
 };
 
 export function ArtworkCard({
@@ -21,17 +22,18 @@ export function ArtworkCard({
   showTrade = true,
   onEdit,
   onDelete,
+  onModerate,
 }: ArtworkCardProps) {
   return (
     <article className="art-card">
       <div className="art-card__visual" style={{ backgroundColor: artwork.color }}>
         {artwork.imageUrl ? (
-          <ArtworkImage src={artwork.imageUrl} alt={artwork.title} />
+          <ArtworkImage src={artwork.imageUrl} alt={artwork.title} filePath={artwork.filePath} />
         ) : (
           <span aria-hidden="true">✦</span>
         )}
-        {onEdit && onDelete ? (
-          <ArtworkMenu onEdit={onEdit} onDelete={onDelete} />
+        {onEdit || onDelete || onModerate ? (
+          <ArtworkMenu onEdit={onEdit} onDelete={onDelete} onModerate={onModerate} />
         ) : (
           <button
             className={`favorite ${isFavorite ? 'favorite--active' : ''}`}

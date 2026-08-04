@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { ArtworkGallery } from '../components/ArtworkGallery';
 import { AuthModal } from '../components/AuthModal';
+import { HomeHero } from '../components/HomeHero';
 import { PublishModal } from '../components/PublishModal';
 import { SiteHeader } from '../components/SiteHeader';
 import { TradeModal } from '../components/TradeModal';
@@ -12,6 +13,7 @@ import { isDeveloper } from '../lib/developer';
 import { loadFavoriteIds, setFavorite } from '../lib/favorites';
 import { supabase } from '../lib/supabase';
 import { useGalleryDebug } from '../lib/useGalleryDebug';
+import { useArtworkModeration } from '../lib/useArtworkModeration';
 
 export function HomePage() {
   const [category, setCategory] = useState(categories[0]);
@@ -21,7 +23,8 @@ export function HomePage() {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>();
+  const [isGalleryLoading, setIsGalleryLoading] = useState(true);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -40,13 +43,17 @@ export function HomePage() {
   }, []);
 
   const refreshArtworks = useCallback(async () => {
+    if (session === undefined) return;
+    setIsGalleryLoading(true);
     debugLog('Обновление галереи началось', { isAuthenticated: Boolean(session) });
     if (!session) {
       setArtworks([]);
       setFavorites([]);
       debugLog('Галерея очищена: активной сессии нет');
+      setIsGalleryLoading(false);
       return;
     }
+    let artworksLoaded = true;
     try {
       const loadedArtworks = await loadArtworks(session.user);
       setArtworks(loadedArtworks);
@@ -54,6 +61,7 @@ export function HomePage() {
     } catch (error) {
       debugError('Не удалось записать работы в состояние страницы', error);
       setArtworks([]);
+      artworksLoaded = false;
     }
     try {
       setFavorites(await loadFavoriteIds());
@@ -61,6 +69,7 @@ export function HomePage() {
       debugError('Не удалось загрузить лайки; работы остаются на странице', error);
       setFavorites([]);
     }
+    setIsGalleryLoading(!artworksLoaded);
   }, [session]);
 
   useEffect(() => {
@@ -79,6 +88,7 @@ export function HomePage() {
   }, [artworks, category, query]);
 
   useGalleryDebug(artworks.length, visibleArtworks.length, category, query);
+  const removeAsModerator = useArtworkModeration(refreshArtworks);
 
   async function toggleFavorite(id: string) {
     const nextValue = !favorites.includes(id);
@@ -109,15 +119,7 @@ export function HomePage() {
         onPublish={() => requireAuth(() => setIsPublishing(true))}
       />
       <main>
-        <section className="hero">
-          <span className="eyebrow">Творчество находит новый дом</span>
-          <h1>Art Swap —<br /><em>обмен творческих работ</em></h1>
-          <p>Делись работами в любом формате, находи близкое тебе творчество и предлагай честный обмен.</p>
-          <div className="hero__actions">
-            <a className="button" href="#gallery">Смотреть работы</a>
-            <button className="text-button" onClick={() => requireAuth(() => setIsPublishing(true))}>Выложить свою →</button>
-          </div>
-        </section>
+        <HomeHero onPublish={() => requireAuth(() => setIsPublishing(true))} />
 
         <ArtworkGallery
           artworks={visibleArtworks}
@@ -130,6 +132,8 @@ export function HomePage() {
           onFavorite={(id) => void toggleFavorite(id)}
           onTrade={(artwork) => requireAuth(() => setSelectedArtwork(artwork))}
           onPublish={() => requireAuth(() => setIsPublishing(true))}
+          onModerate={isDeveloper(session?.user) ? (artwork) => void removeAsModerator(artwork) : undefined}
+          isLoading={isGalleryLoading}
         />
 
       </main>

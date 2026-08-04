@@ -78,11 +78,10 @@ export async function loadMySupportRequests() {
 }
 
 export async function replyToSupportRequest(id: string, reply: string) {
-  const { error } = await supabase.from('support_messages').update({
-    reply,
-    status: 'resolved',
-    replied_at: new Date().toISOString(),
-  }).eq('id', id);
+  const { error } = await supabase.rpc('reply_to_support_request', {
+    request_id: id,
+    reply_text: reply,
+  });
   if (error) throw error;
 }
 

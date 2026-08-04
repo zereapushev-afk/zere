@@ -11,6 +11,9 @@ type EntryRow = {
   offer: string | null;
   file_path: string | null;
   user_id: string;
+  is_removed: boolean;
+  moderation_reason: string | null;
+  moderated_at: string | null;
 };
 
 export async function loadArtworks(user: User | null, ownerId?: string): Promise<Artwork[]> {
@@ -21,7 +24,8 @@ export async function loadArtworks(user: User | null, ownerId?: string): Promise
 
   let query = supabase
     .from('entries')
-    .select('id, title, category, offer, file_path, user_id')
+    .select('id, title, category, offer, file_path, user_id, is_removed, moderation_reason, moderated_at')
+    .eq('is_removed', false)
     .order('created_at', { ascending: false });
   if (ownerId) query = query.eq('user_id', ownerId);
   const { data, error } = await query;

@@ -29,10 +29,15 @@ export function MessagesPage() {
   }, []);
 
   useEffect(() => {
+    let refreshTimer: number | undefined;
     void supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
-      if (data.user) void refresh(data.user);
+      if (data.user) {
+        void refresh(data.user);
+        refreshTimer = window.setInterval(() => void refresh(data.user!), 5000);
+      }
     });
+    return () => window.clearInterval(refreshTimer);
   }, [refresh]);
 
   return (

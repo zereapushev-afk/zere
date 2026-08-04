@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 type ArtworkMenuProps = {
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onModerate?: () => void;
 };
 
-export function ArtworkMenu({ onEdit, onDelete }: ArtworkMenuProps) {
+export function ArtworkMenu({ onEdit, onDelete, onModerate }: ArtworkMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -38,10 +39,9 @@ export function ArtworkMenu({ onEdit, onDelete }: ArtworkMenuProps) {
       </button>
       {isOpen && (
         <div className="artwork-menu__items">
-          <button type="button" onClick={() => runAction(onEdit)}>Изменить</button>
-          <button type="button" className="danger-button" onClick={() => runAction(onDelete)}>
-            Удалить
-          </button>
+          {onEdit && <button type="button" onClick={() => runAction(onEdit)}>Изменить</button>}
+          {onDelete && <button type="button" className="danger-button" onClick={() => runAction(onDelete)}>Удалить</button>}
+          {onModerate && <button type="button" className="danger-button" onClick={() => runAction(onModerate)}>Удалить как модератор</button>}
         </div>
       )}
     </div>
