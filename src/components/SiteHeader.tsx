@@ -1,15 +1,18 @@
 import { Link } from 'wouter';
+import type { User } from '@supabase/supabase-js';
 import { HeaderMenu } from './HeaderMenu';
+import { ProfileMenu } from './ProfileMenu';
 
 type SiteHeaderProps = {
   onPublish: () => void;
   onAuth: () => void;
   onSignOut: () => void;
   isAuthenticated: boolean;
+  user?: User | null;
   isDeveloper?: boolean;
 };
 
-export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, isDeveloper = false }: SiteHeaderProps) {
+export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, user = null, isDeveloper = false }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <Link className="brand" href="/">
@@ -18,9 +21,6 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, isDe
       </Link>
       <nav className="site-nav" aria-label="Основная навигация">
         <Link href="/#gallery">Все работы</Link>
-        <Link href="/favorites">Нравится</Link>
-        <Link href="/profile">Профиль</Link>
-        <Link href="/support">Поддержка</Link>
         {isAuthenticated && <Link href="/messages">Сообщения</Link>}
         {isDeveloper && <Link href="/developer-support">Ответы</Link>}
       </nav>
@@ -31,12 +31,10 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, isDe
         onPublish={onPublish}
         onSignOut={onSignOut}
       />
-      <button className="header-auth" onClick={isAuthenticated ? onSignOut : onAuth}>
-        {isAuthenticated ? 'Выйти' : 'Регистрация'}
-      </button>
       <button className="button button--small header-publish" onClick={onPublish}>
         + Выложить работу
       </button>
+      <ProfileMenu user={user} onAuth={onAuth} onSignOut={onSignOut} />
     </header>
   );
 }

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { ArtworkGallery } from '../components/ArtworkGallery';
 import { AuthModal } from '../components/AuthModal';
-import { DecorativeStars } from '../components/DecorativeStars';
 import { PublishModal } from '../components/PublishModal';
 import { SiteHeader } from '../components/SiteHeader';
 import { TradeModal } from '../components/TradeModal';
@@ -103,6 +102,7 @@ export function HomePage() {
     <>
       <SiteHeader
         isAuthenticated={Boolean(session)}
+        user={session?.user}
         isDeveloper={isDeveloper(session?.user)}
         onAuth={() => setIsAuthOpen(true)}
         onSignOut={() => void supabase.auth.signOut()}
@@ -110,7 +110,6 @@ export function HomePage() {
       />
       <main>
         <section className="hero">
-          <DecorativeStars />
           <span className="eyebrow">Творчество находит новый дом</span>
           <h1>Art Swap —<br /><em>обмен творческих работ</em></h1>
           <p>Делись работами в любом формате, находи близкое тебе творчество и предлагай честный обмен.</p>
@@ -118,11 +117,6 @@ export function HomePage() {
             <a className="button" href="#gallery">Смотреть работы</a>
             <button className="text-button" onClick={() => requireAuth(() => setIsPublishing(true))}>Выложить свою →</button>
           </div>
-          <ol className="hero-guide" aria-label="Как обменяться работой">
-            <li><b>01</b><span>Выложи свою работу</span></li>
-            <li><b>02</b><span>Найди то, что нравится</span></li>
-            <li><b>03</b><span>Предложи автору обмен</span></li>
-          </ol>
         </section>
 
         <ArtworkGallery

@@ -92,6 +92,7 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
     <>
       <SiteHeader
         isAuthenticated={Boolean(session)}
+        user={session?.user}
         isDeveloper={isDeveloper(session?.user)}
         onAuth={() => setIsAuthOpen(true)}
         onSignOut={() => void supabase.auth.signOut()}
