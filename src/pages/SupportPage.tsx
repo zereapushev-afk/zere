@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Link } from 'wouter';
 import { SupportForm } from '../components/SupportForm';
+import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { MySupportRequests } from '../components/MySupportRequests';
 import { SupportTopicPicker } from '../components/SupportTopicPicker';
@@ -15,7 +16,7 @@ function readAppealScore() {
 }
 
 export function SupportPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>();
   const [aiScore] = useState(readAppealScore);
   const [topic, setTopic] = useState<SupportTopic | null>(aiScore === null ? null : 'ai_appeal');
 
@@ -28,7 +29,7 @@ export function SupportPage() {
       <SimpleHeader />
       <main className="support-page">
         <span className="eyebrow">Поддержка</span>
-        {!user ? (
+        {user === undefined ? <ContentListSkeleton count={2} label="Поддержка загружается" /> : !user ? (
           <><h1>Нужна помощь?</h1><p className="support-card">Чтобы отправить обращение, сначала <Link href="/">войди в аккаунт</Link>.</p></>
         ) : topic ? (
           <SupportForm topic={topic} aiScore={aiScore} onBack={() => setTopic(null)} />

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getAvatarUrl, loadProfile, saveProfile, type UserProfile } from '../lib/profile';
 import { AvatarCropper } from './AvatarCropper';
@@ -14,6 +14,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const previewUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     void loadProfile(user).then(async (loaded) => {
@@ -21,6 +22,16 @@ export function ProfileCard({ user }: ProfileCardProps) {
       setAvatarUrl(await getAvatarUrl(loaded.avatar_path));
     }).catch(() => setError('Не удалось загрузить профиль.'));
   }, [user]);
+
+  useEffect(() => () => {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+  }, []);
+
+  function replacePreviewUrl(url: string | null) {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = url?.startsWith('blob:') ? url : null;
+    setAvatarUrl(url);
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -30,7 +41,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
     try {
       const saved = await saveProfile(profile, avatar);
       setProfile(saved);
-      setAvatarUrl(await getAvatarUrl(saved.avatar_path));
+      replacePreviewUrl(await getAvatarUrl(saved.avatar_path));
       setAvatar(null);
       setIsEditing(false);
     } catch {
@@ -72,7 +83,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
           <button className="button button--small" onClick={() => setIsEditing(true)}>Редактировать профиль</button>
         </div>
       )}
-      {avatarToCrop && <AvatarCropper file={avatarToCrop} onCancel={() => setAvatarToCrop(null)} onCrop={(cropped, previewUrl) => { setAvatar(cropped); setAvatarUrl(previewUrl); setAvatarToCrop(null); }} />}
+      {avatarToCrop && <AvatarCropper file={avatarToCrop} onCancel={() => setAvatarToCrop(null)} onCrop={(cropped, previewUrl) => { setAvatar(cropped); replacePreviewUrl(previewUrl); setAvatarToCrop(null); }} />}
     </section>
   );
 }

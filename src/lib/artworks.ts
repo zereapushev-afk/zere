@@ -16,6 +16,15 @@ type EntryRow = {
   moderated_at: string | null;
 };
 
+async function safeAvatarUrl(path: string | null | undefined) {
+  if (!path) return undefined;
+  try {
+    return (await getAvatarUrl(path)) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function loadArtworks(user: User | null, ownerId?: string): Promise<Artwork[]> {
   debugLog('Загрузка работ', { isAuthenticated: Boolean(user) });
 
@@ -58,7 +67,7 @@ export async function loadArtworks(user: User | null, ownerId?: string): Promise
       title: entry.title,
       author: profile?.display_name ?? 'Автор',
       authorId: entry.user_id,
-      authorAvatarUrl: profile?.avatar_path ? (await getAvatarUrl(profile.avatar_path)) ?? undefined : undefined,
+      authorAvatarUrl: await safeAvatarUrl(profile?.avatar_path),
       category: entry.category ?? 'Другое',
       city: 'Онлайн',
       imageUrl,

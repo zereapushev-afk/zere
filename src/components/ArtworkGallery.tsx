@@ -14,6 +14,7 @@ type ArtworkGalleryProps = {
   onPublish: () => void;
   onModerate?: (artwork: Artwork) => void;
   isLoading: boolean;
+  hasAnyArtworks: boolean;
 };
 
 import { ArtworkCard } from './ArtworkCard';
@@ -31,6 +32,7 @@ export function ArtworkGallery({
   onPublish,
   onModerate,
   isLoading,
+  hasAnyArtworks,
 }: ArtworkGalleryProps) {
   return (
     <section className="gallery" id="gallery">
@@ -72,10 +74,10 @@ export function ArtworkGallery({
           <div className="empty-state__art" aria-hidden="true">
             <span>✦</span><span>♪</span><span>◌</span>
           </div>
-          <span className="eyebrow">Начни первым</span>
-          <h3>Нет добавленных работ</h3>
-          <p>Здесь появятся творческие работы авторов в самых разных форматах.</p>
-          <button className="button" onClick={onPublish}>Добавить свою работу</button>
+          <span className="eyebrow">{hasAnyArtworks ? 'Измени запрос' : 'Начни первым'}</span>
+          <h3>{hasAnyArtworks ? 'Ничего не найдено' : 'Нет добавленных работ'}</h3>
+          <p>{hasAnyArtworks ? 'Попробуй другую категорию или поисковую фразу.' : 'Здесь появятся творческие работы авторов в самых разных форматах.'}</p>
+          {!hasAnyArtworks && <button className="button" onClick={onPublish}>Добавить свою работу</button>}
         </div>
       )}
     </section>

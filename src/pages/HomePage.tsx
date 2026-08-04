@@ -71,6 +71,12 @@ export function HomePage() {
     void refreshArtworks();
   }, [refreshArtworks]);
 
+  useEffect(() => {
+    if (session === undefined || !isGalleryLoading) return;
+    const retryTimer = window.setTimeout(() => void refreshArtworks(), 5000);
+    return () => window.clearTimeout(retryTimer);
+  }, [isGalleryLoading, refreshArtworks, session]);
+
   const visibleArtworks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return artworks.filter((artwork) => {
@@ -129,6 +135,7 @@ export function HomePage() {
           onPublish={() => requireAuth(() => setIsPublishing(true))}
           onModerate={isDeveloper(session?.user) ? (artwork) => void removeAsModerator(artwork) : undefined}
           isLoading={isGalleryLoading}
+          hasAnyArtworks={artworks.length > 0}
         />
 
       </main>

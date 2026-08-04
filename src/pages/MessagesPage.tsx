@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ConversationCard } from '../components/ConversationCard';
 import { ConversationSidebar, type MessageConversation } from '../components/ConversationSidebar';
@@ -15,8 +15,10 @@ export function MessagesPage() {
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const refreshRequestRef = useRef(0);
 
   const refresh = useCallback(async (activeUser: User) => {
+    const requestId = ++refreshRequestRef.current;
     try {
       const messages = await loadDirectMessages();
       const partnerIds = [...new Set(messages.map((message) => message.sender_id === activeUser.id ? message.recipient_id : message.sender_id))];
@@ -32,9 +34,10 @@ export function MessagesPage() {
         return {
           partner,
           messages: messages.filter((message) => message.sender_id === partnerId || message.recipient_id === partnerId),
-          avatarUrl: await getAvatarUrl(partner.avatar_path),
+          avatarUrl: await getAvatarUrl(partner.avatar_path).catch(() => null),
         };
       }));
+      if (requestId !== refreshRequestRef.current) return;
       loadedConversations.sort((first, second) => {
         const firstDate = first.messages[first.messages.length - 1]?.created_at ?? '';
         const secondDate = second.messages[second.messages.length - 1]?.created_at ?? '';
@@ -44,22 +47,28 @@ export function MessagesPage() {
       setActivePartnerId((current) => current && partnerIds.includes(current) ? current : loadedConversations[0]?.partner.user_id ?? null);
       setError('');
     } catch {
-      setError('Не удалось загрузить сообщения.');
+      if (requestId === refreshRequestRef.current) setError('Не удалось загрузить сообщения.');
     } finally {
-      setIsLoading(false);
+      if (requestId === refreshRequestRef.current) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     let refreshTimer: number | undefined;
+    let isCancelled = false;
     void supabase.auth.getUser().then(({ data }) => {
+      if (isCancelled) return;
       setUser(data.user);
       if (data.user) {
         void refresh(data.user);
         refreshTimer = window.setInterval(() => void refresh(data.user!), 5000);
       } else setIsLoading(false);
     });
-    return () => window.clearInterval(refreshTimer);
+    return () => {
+      isCancelled = true;
+      refreshRequestRef.current += 1;
+      window.clearInterval(refreshTimer);
+    };
   }, [refresh]);
 
   const activeConversation = conversations.find((conversation) => conversation.partner.user_id === activePartnerId);

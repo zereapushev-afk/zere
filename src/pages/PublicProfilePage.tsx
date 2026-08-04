@@ -22,7 +22,6 @@ export function PublicProfilePage() {
   useEffect(() => {
     void supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
-      if (!data.session) return;
       try {
         const loaded = await loadPublicProfile(id);
         setProfile(loaded);
@@ -33,7 +32,7 @@ export function PublicProfilePage() {
           setAvatarUrl(null);
         }
         try {
-          setArtworks(await loadArtworks(data.session.user, id));
+          setArtworks(await loadArtworks(data.session?.user ?? null, id));
           setAreArtworksLoading(false);
         } catch {
           setAreArtworksLoading(true);
@@ -48,13 +47,13 @@ export function PublicProfilePage() {
     <>
       <SimpleHeader />
       <main className="public-profile-page">
-        {session === undefined || (session && profile === undefined) ? <ContentListSkeleton count={2} label="Профиль загружается" /> : !session ? <p className="support-card">Войди в аккаунт, чтобы посмотреть профиль автора.</p> : !profile ? <p className="support-card">Профиль не найден.</p> : (
+        {session === undefined || profile === undefined ? <ContentListSkeleton count={2} label="Профиль загружается" /> : !profile ? <p className="support-card">Профиль не найден.</p> : (
           <>
             <section className="public-profile-header">
               <div className="profile-avatar">{avatarUrl ? <img src={avatarUrl} alt="Аватар автора" /> : profile.display_name.slice(0, 1).toUpperCase()}</div>
               <div><span className="eyebrow">Профиль автора</span><h1>{profile.display_name}</h1><p>{profile.bio || 'Автор пока не добавил био.'}</p></div>
             </section>
-            {session.user.id === profile.user_id ? <Link className="button button--small" href="/profile">Редактировать мой профиль</Link> : <section className="author-message"><h2>Написать автору</h2><MessageComposer recipientId={profile.user_id} /></section>}
+            {session?.user.id === profile.user_id ? <Link className="button button--small" href="/profile">Редактировать мой профиль</Link> : session ? <section className="author-message"><h2>Написать автору</h2><MessageComposer recipientId={profile.user_id} /></section> : null}
             <section className="author-artworks"><h2>Работы автора</h2>{areArtworksLoading ? <ArtworkGridSkeleton /> : <><div className="art-grid">{artworks.map((artwork) => <ArtworkCard key={artwork.id} artwork={artwork} isFavorite={false} onFavorite={() => undefined} onTrade={() => undefined} showTrade={false} />)}</div>{artworks.length === 0 && <p>У автора пока нет опубликованных работ.</p>}</>}</section>
           </>
         )}

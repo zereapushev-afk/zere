@@ -54,8 +54,8 @@ export function HeaderMenu({ isAuthenticated, isDeveloper, onAuth, onPublish, on
       {isOpen && (
         <nav className="header-menu__panel" aria-label="Меню сайта">
           <Link href="/#gallery" onClick={closeMenu}>Все работы</Link>
-          <Link href="/favorites" onClick={closeMenu}>Нравится</Link>
-          <Link href="/profile" onClick={closeMenu}>Профиль</Link>
+          {isAuthenticated && <Link href="/favorites" onClick={closeMenu}>Нравится</Link>}
+          {isAuthenticated && <Link href="/profile" onClick={closeMenu}>Профиль</Link>}
           {isAuthenticated && <Link href="/messages" onClick={closeMenu}>Сообщения</Link>}
           <Link href="/support" onClick={closeMenu}>Поддержка</Link>
           {isDeveloper && <Link href="/developer-support" onClick={closeMenu}>Модераторство</Link>}
