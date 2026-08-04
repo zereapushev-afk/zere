@@ -41,6 +41,7 @@
 .support-card small { font-weight: 400; line-height: 1.5; }
 .support-card .button { justify-self: start; }
 .developer-support-page { width: min(860px, calc(100% - 40px)); }
+.moderator-links { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 28px 0; padding: 18px 20px; border-radius: 16px; background: var(--cream); }
 .support-request-list, .my-support-requests { display: grid; gap: 18px; margin-top: 32px; }
 .my-support-requests { margin-top: 56px; }
 .my-support-requests h2 { margin: 0; font-size: 30px; }

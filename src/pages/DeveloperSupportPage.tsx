@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { Link } from 'wouter';
 import { SupportRequestCard } from '../components/SupportRequestCard';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { isDeveloper } from '../lib/developer';
@@ -31,12 +32,16 @@ export function DeveloperSupportPage() {
     <>
       <SimpleHeader />
       <main className="support-page developer-support-page">
-        <span className="eyebrow">Для разработчика</span>
-        <h1>Обращения</h1>
+        <span className="eyebrow">Только для разработчика</span>
+        <h1>Модераторство</h1>
         {user === undefined ? <p>Загружаю…</p> : !isDeveloper(user) ? (
           <p className="support-card">Эта страница доступна только разработчику.</p>
         ) : (
           <>
+            <div className="moderator-links">
+              <b>Обращения поддержки</b>
+              <Link className="button button--small" href="/moderation">Удалённые работы</Link>
+            </div>
             {error && <p className="form-error">{error}</p>}
             {!error && requests.length === 0 && <p className="support-card">Новых обращений пока нет.</p>}
             <div className="support-request-list">

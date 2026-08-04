@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Link } from 'wouter';
 import { getAvatarUrl, loadProfile } from '../lib/profile';
+import { isDeveloper } from '../lib/developer';
 
 type ProfileMenuProps = {
   user: User | null;
@@ -52,6 +53,7 @@ export function ProfileMenu({ user, onAuth, onSignOut }: ProfileMenuProps) {
           <Link href="/profile" onClick={() => setIsOpen(false)}>Профиль</Link>
           <Link href="/favorites" onClick={() => setIsOpen(false)}>Нравится</Link>
           <Link href="/support" onClick={() => setIsOpen(false)}>Поддержка</Link>
+          {isDeveloper(user) && <Link href="/developer-support" onClick={() => setIsOpen(false)}>Модераторство</Link>}
           <Link href="/moderation" onClick={() => setIsOpen(false)}>Удалённые работы</Link>
           <button type="button" onClick={onSignOut}>Выйти</button>
         </nav>

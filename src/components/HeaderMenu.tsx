@@ -58,7 +58,7 @@ export function HeaderMenu({ isAuthenticated, isDeveloper, onAuth, onPublish, on
           <Link href="/profile" onClick={closeMenu}>Профиль</Link>
           {isAuthenticated && <Link href="/messages" onClick={closeMenu}>Сообщения</Link>}
           <Link href="/support" onClick={closeMenu}>Поддержка</Link>
-          {isDeveloper && <Link href="/developer-support" onClick={closeMenu}>Ответы поддержки</Link>}
+          {isDeveloper && <Link href="/developer-support" onClick={closeMenu}>Модераторство</Link>}
           {isAuthenticated && <Link href="/moderation" onClick={closeMenu}>{isDeveloper ? 'Удалённые работы' : 'Мои апелляции'}</Link>}
           <button type="button" onClick={() => runAction(onPublish)}>+ Выложить работу</button>
           <button

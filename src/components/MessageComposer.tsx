@@ -30,7 +30,7 @@ export function MessageComposer({ recipientId, onSent }: MessageComposerProps) {
 
   return (
     <form className="message-composer" onSubmit={handleSubmit}>
-      <label>Сообщение<textarea value={body} onChange={(event) => setBody(event.target.value)} maxLength={2000} rows={4} placeholder="Напиши автору…" required /></label>
+      <label><span className="visually-hidden">Сообщение</span><textarea value={body} onChange={(event) => setBody(event.target.value)} maxLength={2000} rows={2} placeholder="Напиши сообщение…" required /></label>
       {status && <p className="message">{status}</p>}
       <button className="button button--small" disabled={isSending}>{isSending ? 'Отправляю…' : 'Отправить'}</button>
     </form>

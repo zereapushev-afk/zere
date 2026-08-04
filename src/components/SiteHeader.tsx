@@ -22,7 +22,7 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, user
       <nav className="site-nav" aria-label="Основная навигация">
         <Link href="/#gallery">Все работы</Link>
         {isAuthenticated && <Link href="/messages">Сообщения</Link>}
-        {isDeveloper && <Link href="/developer-support">Ответы</Link>}
+        {isDeveloper && <Link href="/developer-support">Модераторство</Link>}
       </nav>
       <HeaderMenu
         isAuthenticated={isAuthenticated}
