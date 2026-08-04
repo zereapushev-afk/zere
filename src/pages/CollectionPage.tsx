@@ -34,19 +34,22 @@ export function CollectionPage({ favoritesOnly = false }: CollectionPageProps) {
       setIsLoading(false);
       return;
     }
+    let loadedSuccessfully = true;
     try {
       try {
         setArtworks(await loadArtworks(activeSession.user, favoritesOnly ? undefined : activeSession.user.id));
       } catch {
         setArtworks([]);
+        loadedSuccessfully = false;
       }
       try {
         setFavoriteIds(await loadFavoriteIds());
       } catch {
         setFavoriteIds([]);
+        if (favoritesOnly) loadedSuccessfully = false;
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(!loadedSuccessfully);
     }
   }, [favoritesOnly]);
 

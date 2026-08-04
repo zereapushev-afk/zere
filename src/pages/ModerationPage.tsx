@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ModeratedArtworkCard } from '../components/ModeratedArtworkCard';
+import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { isDeveloper } from '../lib/developer';
 import { loadRemovedArtworks, restoreArtwork, submitArtworkAppeal, type RemovedArtwork } from '../lib/moderation';
@@ -10,12 +11,18 @@ export function ModerationPage() {
   const [user, setUser] = useState<User | null>();
   const [artworks, setArtworks] = useState<RemovedArtwork[]>([]);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasLoadFailed, setHasLoadFailed] = useState(false);
 
   const refresh = useCallback(async () => {
+    setIsLoading(true);
     try {
       setArtworks(await loadRemovedArtworks());
       setError('');
+      setHasLoadFailed(false);
+      setIsLoading(false);
     } catch {
+      setHasLoadFailed(true);
       setError('Не удалось загрузить удалённые работы. Возможно, миграция базы ещё не применена.');
     }
   }, []);
@@ -51,13 +58,11 @@ export function ModerationPage() {
       <main className="moderation-page">
         <span className="eyebrow">Модерация</span>
         <h1>{isDeveloper(user) ? 'Удалённые работы' : 'Мои апелляции'}</h1>
-        {user === undefined ? <p>Загружаю…</p> : !user ? <p>Войди в аккаунт, чтобы открыть этот раздел.</p> : (
+        {user === undefined ? <ContentListSkeleton label="Модерация загружается" /> : !user ? <p>Войди в аккаунт, чтобы открыть этот раздел.</p> : (
           <>
-            {error && <p className="form-error">{error}</p>}
-            {!error && artworks.length === 0 && <p className="support-card">Удалённых работ пока нет.</p>}
-            <div className="moderation-list">
+            {isLoading || hasLoadFailed ? <ContentListSkeleton label="Удалённые работы загружаются" /> : <>{error && <p className="form-error">{error}</p>}{artworks.length === 0 ? <p className="support-card">Удалённых работ пока нет.</p> : <div className="moderation-list">
               {artworks.map((artwork) => <ModeratedArtworkCard key={artwork.id} artwork={artwork} isDeveloper={isDeveloper(user)} onAppeal={(body) => appeal(artwork.id, body)} onRestore={() => restore(artwork.id)} />)}
-            </div>
+            </div>}</>}
           </>
         )}
       </main>

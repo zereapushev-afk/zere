@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
 import { loadMySupportRequests, SUPPORT_TOPIC_LABELS, type SupportRequest } from '../lib/support';
+import { ContentListSkeleton } from './ContentListSkeleton';
 
 export function MySupportRequests() {
   const [requests, setRequests] = useState<SupportRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    void loadMySupportRequests().then(setRequests).catch(() => setRequests([]));
+    void loadMySupportRequests()
+      .then((loaded) => { setRequests(loaded); setIsLoading(false); })
+      .catch(() => setIsLoading(true));
   }, []);
 
+  if (isLoading) return <ContentListSkeleton label="Обращения загружаются" />;
   if (requests.length === 0) return null;
 
   return (

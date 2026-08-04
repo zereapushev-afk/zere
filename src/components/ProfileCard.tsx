@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getAvatarUrl, loadProfile, saveProfile, type UserProfile } from '../lib/profile';
 import { AvatarCropper } from './AvatarCropper';
+import { ContentListSkeleton } from './ContentListSkeleton';
 
 type ProfileCardProps = { user: User };
 
@@ -49,7 +50,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
     setAvatarToCrop(file);
   }
 
-  if (!profile) return <section className="profile-card">{error || 'Загружаю профиль…'}</section>;
+  if (!profile) return <section className="profile-card"><ContentListSkeleton count={2} label="Профиль загружается" /></section>;
 
   return (
     <section className="profile-card">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { SupabaseSetupMessage } from './SupabaseSetupMessage';
+import { ContentListSkeleton } from './ContentListSkeleton';
 
 // Пример работы с базой: читаем, добавляем и удаляем свои записи.
 // Таблица `entries` создаётся миграцией в supabase/migrations/. Переделай это под свою идею:
@@ -15,6 +16,7 @@ export function Entries({ userEmail }: { userEmail: string }) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   async function load() {
     const { data, error } = await supabase
@@ -22,7 +24,7 @@ export function Entries({ userEmail }: { userEmail: string }) {
       .select('id, title, created_at')
       .order('created_at', { ascending: false });
     if (error) setError(error.message);
-    else setEntries(data ?? []);
+    else { setEntries(data ?? []); setIsLoading(false); }
   }
 
   useEffect(() => {
@@ -62,9 +64,7 @@ export function Entries({ userEmail }: { userEmail: string }) {
         <button type="submit">Добавить</button>
       </form>
 
-      {error && <p className="message">{error}</p>}
-
-      {entries.length === 0 ? (
+      {isLoading || error ? <ContentListSkeleton label="Записи загружаются" /> : entries.length === 0 ? (
         <p className="empty">Пока пусто. Добавь первую запись 👆</p>
       ) : (
         <ul className="list">

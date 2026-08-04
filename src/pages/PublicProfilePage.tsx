@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { Link, useParams } from 'wouter';
 import { ArtworkCard } from '../components/ArtworkCard';
+import { ArtworkGridSkeleton } from '../components/ArtworkGridSkeleton';
+import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { MessageComposer } from '../components/MessageComposer';
 import { SimpleHeader } from '../components/SimpleHeader';
 import type { Artwork } from '../data/artworks';
@@ -15,6 +17,7 @@ export function PublicProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [areArtworksLoading, setAreArtworksLoading] = useState(true);
 
   useEffect(() => {
     void supabase.auth.getSession().then(async ({ data }) => {
@@ -23,10 +26,20 @@ export function PublicProfilePage() {
       try {
         const loaded = await loadPublicProfile(id);
         setProfile(loaded);
-        setAvatarUrl(await getAvatarUrl(loaded?.avatar_path ?? null));
-        setArtworks(await loadArtworks(data.session.user, id));
+        if (!loaded) return;
+        try {
+          setAvatarUrl(await getAvatarUrl(loaded.avatar_path));
+        } catch {
+          setAvatarUrl(null);
+        }
+        try {
+          setArtworks(await loadArtworks(data.session.user, id));
+          setAreArtworksLoading(false);
+        } catch {
+          setAreArtworksLoading(true);
+        }
       } catch {
-        setProfile(null);
+        setProfile(undefined);
       }
     });
   }, [id]);
@@ -35,14 +48,14 @@ export function PublicProfilePage() {
     <>
       <SimpleHeader />
       <main className="public-profile-page">
-        {!session ? <p className="support-card">Войди в аккаунт, чтобы посмотреть профиль автора.</p> : profile === undefined ? <p>Загружаю…</p> : !profile ? <p className="support-card">Профиль не найден.</p> : (
+        {session === undefined || (session && profile === undefined) ? <ContentListSkeleton count={2} label="Профиль загружается" /> : !session ? <p className="support-card">Войди в аккаунт, чтобы посмотреть профиль автора.</p> : !profile ? <p className="support-card">Профиль не найден.</p> : (
           <>
             <section className="public-profile-header">
               <div className="profile-avatar">{avatarUrl ? <img src={avatarUrl} alt="Аватар автора" /> : profile.display_name.slice(0, 1).toUpperCase()}</div>
               <div><span className="eyebrow">Профиль автора</span><h1>{profile.display_name}</h1><p>{profile.bio || 'Автор пока не добавил био.'}</p></div>
             </section>
             {session.user.id === profile.user_id ? <Link className="button button--small" href="/profile">Редактировать мой профиль</Link> : <section className="author-message"><h2>Написать автору</h2><MessageComposer recipientId={profile.user_id} /></section>}
-            <section className="author-artworks"><h2>Работы автора</h2><div className="art-grid">{artworks.map((artwork) => <ArtworkCard key={artwork.id} artwork={artwork} isFavorite={false} onFavorite={() => undefined} onTrade={() => undefined} showTrade={false} />)}</div>{artworks.length === 0 && <p>У автора пока нет опубликованных работ.</p>}</section>
+            <section className="author-artworks"><h2>Работы автора</h2>{areArtworksLoading ? <ArtworkGridSkeleton /> : <><div className="art-grid">{artworks.map((artwork) => <ArtworkCard key={artwork.id} artwork={artwork} isFavorite={false} onFavorite={() => undefined} onTrade={() => undefined} showTrade={false} />)}</div>{artworks.length === 0 && <p>У автора пока нет опубликованных работ.</p>}</>}</section>
           </>
         )}
       </main>

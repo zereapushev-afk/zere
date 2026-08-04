@@ -53,6 +53,11 @@
 .support-request textarea { width: 100%; padding: 14px; border: 1px solid var(--primary); border-radius: 10px; background: var(--cream); color: var(--text); resize: vertical; }
 .support-request form .button { justify-self: start; }
 .support-reply { display: grid; gap: 8px; margin-top: 4px; padding: 16px; border-left: 3px solid var(--primary); background: var(--cream); }
+.content-list-skeleton { display: grid; gap: 16px; margin-top: 28px; }
+.content-skeleton-card { display: grid; gap: 12px; min-height: 120px; padding: 22px; border-radius: 18px; }
+.content-skeleton-card span { width: 58%; height: 12px; border-radius: 999px; background: rgb(255 246 225 / 72%); }
+.content-skeleton-card span:first-child { width: 34%; height: 18px; }
+.content-skeleton-card span:last-child { width: 76%; }
 .moderation-page { width: min(900px, calc(100% - 40px)); margin: auto; padding: 70px 0; }
 .moderation-page > h1 { margin: 12px 0 36px; font-size: clamp(42px, 7vw, 72px); line-height: 1; }
 .moderation-list { display: grid; gap: 22px; }

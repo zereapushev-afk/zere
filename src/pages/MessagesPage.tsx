@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { ConversationCard } from '../components/ConversationCard';
 import { ConversationSidebar, type MessageConversation } from '../components/ConversationSidebar';
+import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { loadDirectMessages } from '../lib/messages';
 import { getAvatarUrl, loadPublicProfiles } from '../lib/profile';
@@ -73,7 +74,7 @@ export function MessagesPage() {
       <SimpleHeader />
       <main className="messages-page">
         <span className="eyebrow">Личные сообщения</span><h1>Сообщения</h1>
-        {user === undefined || isLoading ? <p>Загружаю сообщения…</p> : !user ? <p className="support-card">Войди в аккаунт, чтобы увидеть сообщения.</p> : error ? <p className="form-error">{error}</p> : conversations.length === 0 ? <p className="support-card">Сообщений пока нет. Открой профиль автора, чтобы написать ему.</p> : (
+        {user === undefined || isLoading || error ? <ContentListSkeleton label="Сообщения загружаются" /> : !user ? <p className="support-card">Войди в аккаунт, чтобы увидеть сообщения.</p> : conversations.length === 0 ? <p className="support-card">Сообщений пока нет. Открой профиль автора, чтобы написать ему.</p> : (
           <div className={`messages-layout${isMobileChatOpen ? ' messages-layout--chat-open' : ''}`}>
             <ConversationSidebar conversations={conversations} activePartnerId={activePartnerId} currentUserId={user.id} onSelect={openConversation} />
             {activeConversation && <ConversationCard currentUserId={user.id} partner={activeConversation.partner} messages={activeConversation.messages} avatarUrl={activeConversation.avatarUrl} onBack={() => setIsMobileChatOpen(false)} onSent={() => void refresh(user)} />}
