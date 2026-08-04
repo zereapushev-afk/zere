@@ -9,9 +9,10 @@ type ConversationCardProps = {
   messages: DirectMessage[];
   onSent: () => void;
   avatarUrl: string | null;
+  onBack?: () => void;
 };
 
-export function ConversationCard({ currentUserId, partner, messages, onSent, avatarUrl }: ConversationCardProps) {
+export function ConversationCard({ currentUserId, partner, messages, onSent, avatarUrl, onBack }: ConversationCardProps) {
   const messagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export function ConversationCard({ currentUserId, partner, messages, onSent, ava
   return (
     <section className="conversation-card chat-panel">
       <header className="chat-panel__header">
+        {onBack && <button className="chat-panel__back" type="button" onClick={onBack} aria-label="Назад к диалогам">←</button>}
         <span className="conversation-preview__avatar">{avatarUrl ? <img src={avatarUrl} alt="" /> : partner.display_name.slice(0, 1).toUpperCase()}</span>
         <div><h2>{partner.display_name}</h2><small>Переписка</small></div>
       </header>

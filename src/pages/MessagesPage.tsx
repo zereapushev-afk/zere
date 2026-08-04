@@ -11,6 +11,7 @@ export function MessagesPage() {
   const [user, setUser] = useState<User | null>();
   const [conversations, setConversations] = useState<MessageConversation[]>([]);
   const [activePartnerId, setActivePartnerId] = useState<string | null>(null);
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,15 +63,20 @@ export function MessagesPage() {
 
   const activeConversation = conversations.find((conversation) => conversation.partner.user_id === activePartnerId);
 
+  function openConversation(partnerId: string) {
+    setActivePartnerId(partnerId);
+    setIsMobileChatOpen(true);
+  }
+
   return (
     <>
       <SimpleHeader />
       <main className="messages-page">
         <span className="eyebrow">Личные сообщения</span><h1>Сообщения</h1>
         {user === undefined || isLoading ? <p>Загружаю сообщения…</p> : !user ? <p className="support-card">Войди в аккаунт, чтобы увидеть сообщения.</p> : error ? <p className="form-error">{error}</p> : conversations.length === 0 ? <p className="support-card">Сообщений пока нет. Открой профиль автора, чтобы написать ему.</p> : (
-          <div className="messages-layout">
-            <ConversationSidebar conversations={conversations} activePartnerId={activePartnerId} currentUserId={user.id} onSelect={setActivePartnerId} />
-            {activeConversation && <ConversationCard currentUserId={user.id} partner={activeConversation.partner} messages={activeConversation.messages} avatarUrl={activeConversation.avatarUrl} onSent={() => void refresh(user)} />}
+          <div className={`messages-layout${isMobileChatOpen ? ' messages-layout--chat-open' : ''}`}>
+            <ConversationSidebar conversations={conversations} activePartnerId={activePartnerId} currentUserId={user.id} onSelect={openConversation} />
+            {activeConversation && <ConversationCard currentUserId={user.id} partner={activeConversation.partner} messages={activeConversation.messages} avatarUrl={activeConversation.avatarUrl} onBack={() => setIsMobileChatOpen(false)} onSent={() => void refresh(user)} />}
           </div>
         )}
       </main>

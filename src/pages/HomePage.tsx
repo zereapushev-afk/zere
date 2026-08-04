@@ -46,16 +46,9 @@ export function HomePage() {
     if (session === undefined) return;
     setIsGalleryLoading(true);
     debugLog('Обновление галереи началось', { isAuthenticated: Boolean(session) });
-    if (!session) {
-      setArtworks([]);
-      setFavorites([]);
-      debugLog('Галерея очищена: активной сессии нет');
-      setIsGalleryLoading(false);
-      return;
-    }
     let artworksLoaded = true;
     try {
-      const loadedArtworks = await loadArtworks(session.user);
+      const loadedArtworks = await loadArtworks(session?.user ?? null);
       setArtworks(loadedArtworks);
       debugLog('Работы записаны в состояние страницы', { count: loadedArtworks.length });
     } catch (error) {
@@ -63,12 +56,14 @@ export function HomePage() {
       setArtworks([]);
       artworksLoaded = false;
     }
-    try {
-      setFavorites(await loadFavoriteIds());
-    } catch (error) {
-      debugError('Не удалось загрузить лайки; работы остаются на странице', error);
-      setFavorites([]);
-    }
+    if (session) {
+      try {
+        setFavorites(await loadFavoriteIds());
+      } catch (error) {
+        debugError('Не удалось загрузить лайки; работы остаются на странице', error);
+        setFavorites([]);
+      }
+    } else setFavorites([]);
     setIsGalleryLoading(!artworksLoaded);
   }, [session]);
 
@@ -129,7 +124,7 @@ export function HomePage() {
           favoriteIds={favorites}
           onCategoryChange={setCategory}
           onQueryChange={setQuery}
-          onFavorite={(id) => void toggleFavorite(id)}
+          onFavorite={(id) => requireAuth(() => void toggleFavorite(id))}
           onTrade={(artwork) => requireAuth(() => setSelectedArtwork(artwork))}
           onPublish={() => requireAuth(() => setIsPublishing(true))}
           onModerate={isDeveloper(session?.user) ? (artwork) => void removeAsModerator(artwork) : undefined}

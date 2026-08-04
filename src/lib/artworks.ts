@@ -17,10 +17,7 @@ type EntryRow = {
 };
 
 export async function loadArtworks(user: User | null, ownerId?: string): Promise<Artwork[]> {
-  if (!user) {
-    debugLog('Загрузка работ пропущена: пользователь не авторизован');
-    return [];
-  }
+  debugLog('Загрузка работ', { isAuthenticated: Boolean(user) });
 
   let query = supabase
     .from('entries')
