@@ -5,7 +5,7 @@ import { ConversationSidebar, type MessageConversation } from '../components/Con
 import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { loadDirectMessages } from '../lib/messages';
-import { loadArtworks } from '../lib/artworks';
+import { loadArtworks, loadReceivedTradeArtworks } from '../lib/artworks';
 import type { Artwork } from '../data/artworks';
 import { getAvatarUrl, loadPublicProfiles } from '../lib/profile';
 import { supabase } from '../lib/supabase';
@@ -23,8 +23,16 @@ export function MessagesPage() {
   const refresh = useCallback(async (activeUser: User) => {
     const requestId = ++refreshRequestRef.current;
     try {
-      const [messages, artworks] = await Promise.all([loadDirectMessages(), loadArtworks(activeUser)]);
-      setArtworkMap(new Map(artworks.map((artwork) => [artwork.id, artwork])));
+      const messages = await loadDirectMessages();
+      const receivedIds = messages
+        .filter((message) => message.trade_status === 'accepted')
+        .map((message) => message.sender_id === activeUser.id ? message.requested_artwork_id : message.offered_artwork_id)
+        .filter((id): id is string => Boolean(id));
+      const [artworks, receivedArtworks] = await Promise.all([
+        loadArtworks(activeUser),
+        loadReceivedTradeArtworks(receivedIds),
+      ]);
+      setArtworkMap(new Map([...artworks, ...receivedArtworks].map((artwork) => [artwork.id, artwork])));
       const partnerIds = [...new Set(messages.map((message) => message.sender_id === activeUser.id ? message.recipient_id : message.sender_id))];
       const profiles = await loadPublicProfiles(partnerIds);
       const profileMap = new Map(profiles.map((profile) => [profile.user_id, profile]));

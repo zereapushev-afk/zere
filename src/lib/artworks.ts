@@ -14,6 +14,8 @@ type EntryRow = {
   is_removed: boolean;
   moderation_reason: string | null;
   moderated_at: string | null;
+  current_owner_id: string;
+  traded_at: string | null;
 };
 
 async function safeAvatarUrl(path: string | null | undefined) {
@@ -30,10 +32,11 @@ export async function loadArtworks(user: User | null, ownerId?: string): Promise
 
   let query = supabase
     .from('entries')
-    .select('id, title, category, offer, file_path, user_id, is_removed, moderation_reason, moderated_at')
+    .select('id, title, category, offer, file_path, user_id, is_removed, moderation_reason, moderated_at, current_owner_id, traded_at')
     .eq('is_removed', false)
+    .is('traded_at', null)
     .order('created_at', { ascending: false });
-  if (ownerId) query = query.eq('user_id', ownerId);
+  if (ownerId) query = query.eq('current_owner_id', ownerId);
   const { data, error } = await query;
 
   if (error) {
@@ -43,7 +46,20 @@ export async function loadArtworks(user: User | null, ownerId?: string): Promise
 
   debugLog('Записи работ получены из Supabase', { count: data.length });
 
-  const entries = data as EntryRow[];
+  return mapArtworkRows(data as EntryRow[]);
+}
+
+export async function loadReceivedTradeArtworks(ids: string[]): Promise<Artwork[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from('entries')
+    .select('id, title, category, offer, file_path, user_id, is_removed, moderation_reason, moderated_at, current_owner_id, traded_at')
+    .in('id', ids);
+  if (error) throw error;
+  return mapArtworkRows(data as EntryRow[]);
+}
+
+async function mapArtworkRows(entries: EntryRow[]): Promise<Artwork[]> {
   const profiles = await loadPublicProfiles([...new Set(entries.map((entry) => entry.user_id))]);
   const profileMap = new Map(profiles.map((profile) => [profile.user_id, profile]));
 
@@ -89,10 +105,10 @@ export async function updateArtwork(id: string, title: string, offer: string) {
 }
 
 export async function deleteArtwork(artwork: Artwork) {
-  const { error } = await supabase.from('entries').delete().eq('id', artwork.id);
-  if (error) throw error;
-
   if (artwork.filePath) {
     await supabase.storage.from('artworks').remove([artwork.filePath]);
   }
+
+  const { error } = await supabase.from('entries').delete().eq('id', artwork.id);
+  if (error) throw error;
 }
