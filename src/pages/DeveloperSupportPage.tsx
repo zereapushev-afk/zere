@@ -22,6 +22,7 @@ export function DeveloperSupportPage() {
       setIsLoading(false);
     } catch {
       setError('Не удалось загрузить обращения. Проверь подключение к Supabase.');
+      setIsLoading(false);
     }
   }, []);
 
@@ -46,7 +47,7 @@ export function DeveloperSupportPage() {
               <b>Обращения поддержки</b>
               <Link className="button button--small" href="/moderation">Удалённые работы</Link>
             </div>
-            {isLoading || error ? <ContentListSkeleton label="Обращения загружаются" /> : requests.length === 0 ? <p className="support-card">Новых обращений пока нет.</p> : <div className="support-request-list">
+            {isLoading ? <ContentListSkeleton label="Обращения загружаются" /> : error ? <p className="form-error">{error}</p> : requests.length === 0 ? <p className="support-card">Новых обращений пока нет.</p> : <div className="support-request-list">
               {requests.map((request) => <SupportRequestCard key={request.id} request={request} onReplied={() => void refresh()} />)}
             </div>}
           </>

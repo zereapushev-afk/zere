@@ -10,9 +10,10 @@ type SiteHeaderProps = {
   isAuthenticated: boolean;
   user?: User | null;
   isDeveloper?: boolean;
+  onAllWorks?: () => void;
 };
 
-export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, user = null, isDeveloper = false }: SiteHeaderProps) {
+export function SiteHeader({ onPublish, onAuth, onSignOut, onAllWorks, isAuthenticated, user = null, isDeveloper = false }: SiteHeaderProps) {
   return (
     <header className="site-header">
       <Link className="brand" href="/">
@@ -20,7 +21,7 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, user
         <span>Art Swap</span>
       </Link>
       <nav className="site-nav" aria-label="Основная навигация">
-        <Link href="/#gallery">Все работы</Link>
+        {onAllWorks ? <button type="button" onClick={onAllWorks}>Все работы</button> : <Link href="/#gallery">Все работы</Link>}
         {isAuthenticated && <Link href="/messages">Сообщения</Link>}
         {isDeveloper && <Link href="/developer-support">Модераторство</Link>}
       </nav>
@@ -30,6 +31,7 @@ export function SiteHeader({ onPublish, onAuth, onSignOut, isAuthenticated, user
         onAuth={onAuth}
         onPublish={onPublish}
         onSignOut={onSignOut}
+        onAllWorks={onAllWorks}
       />
       <button className="button button--small header-publish" onClick={onPublish}>
         + Выложить работу

@@ -109,6 +109,12 @@ export function HomePage() {
     action();
   }
 
+  function showAllArtworks() {
+    setCategory(categories[0]);
+    setQuery('');
+    document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   return (
     <>
       <SiteHeader
@@ -118,6 +124,7 @@ export function HomePage() {
         onAuth={() => setIsAuthOpen(true)}
         onSignOut={() => void supabase.auth.signOut()}
         onPublish={() => requireAuth(() => setIsPublishing(true))}
+        onAllWorks={showAllArtworks}
       />
       <main>
         <HomeHero onPublish={() => requireAuth(() => setIsPublishing(true))} />

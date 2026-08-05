@@ -22,13 +22,14 @@ export function TradeOfferCard({ message, currentUserId, offeredArtwork, request
   const [error, setError] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const canAnswer = message.recipient_id === currentUserId && message.trade_status === 'pending';
+  const receivedArtwork = message.sender_id === currentUserId ? requestedArtwork : offeredArtwork;
 
   async function answer(status: 'accepted' | 'rejected') {
     setIsSaving(true);
     setError('');
     try {
       await answerTradeOffer(message.id, status);
-      if (status === 'accepted' && offeredArtwork?.imageUrl) setShowSaveModal(true);
+      if (status === 'accepted' && receivedArtwork?.imageUrl) setShowSaveModal(true);
       onAnswered();
     } catch {
       setError('Не удалось сохранить ответ.');
@@ -52,8 +53,15 @@ export function TradeOfferCard({ message, currentUserId, offeredArtwork, request
         <button className="button button--small" disabled={isSaving} onClick={() => void answer('accepted')}>Принять</button>
         <button className="text-button" disabled={isSaving} onClick={() => void answer('rejected')}>Отклонить</button>
       </div>}
+      {message.trade_status === 'accepted' && receivedArtwork && <button
+        className="button button--small"
+        type="button"
+        onClick={() => setShowSaveModal(true)}
+      >
+        Сохранить полученную работу
+      </button>}
       {error && <small className="form-error">{error}</small>}
-      {showSaveModal && offeredArtwork && <SaveArtworkModal artwork={offeredArtwork} onClose={() => setShowSaveModal(false)} />}
+      {showSaveModal && receivedArtwork && <SaveArtworkModal artwork={receivedArtwork} onClose={() => setShowSaveModal(false)} />}
     </div>
   );
 }
@@ -62,7 +70,7 @@ function ArtworkSummary({ label, artwork }: { label: string; artwork?: Artwork }
   return (
     <div className="trade-offer__work">
       {artwork?.imageUrl && <img src={artwork.imageUrl} alt="" />}
-      <span><small>{label}</small><b>{artwork?.title ?? 'Работа удалена'}</b></span>
+      <span><small>{label}</small><b>{artwork?.title ?? 'Передана участнику'}</b></span>
     </div>
   );
 }

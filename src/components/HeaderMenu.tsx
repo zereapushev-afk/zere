@@ -7,9 +7,10 @@ type HeaderMenuProps = {
   onAuth: () => void;
   onPublish: () => void;
   onSignOut: () => void;
+  onAllWorks?: () => void;
 };
 
-export function HeaderMenu({ isAuthenticated, isDeveloper, onAuth, onPublish, onSignOut }: HeaderMenuProps) {
+export function HeaderMenu({ isAuthenticated, isDeveloper, onAuth, onPublish, onSignOut, onAllWorks }: HeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -53,7 +54,11 @@ export function HeaderMenu({ isAuthenticated, isDeveloper, onAuth, onPublish, on
 
       {isOpen && (
         <nav className="header-menu__panel" aria-label="Меню сайта">
-          <Link href="/#gallery" onClick={closeMenu}>Все работы</Link>
+          {onAllWorks ? (
+            <button type="button" onClick={() => runAction(onAllWorks)}>Все работы</button>
+          ) : (
+            <Link href="/#gallery" onClick={closeMenu}>Все работы</Link>
+          )}
           {isAuthenticated && <Link href="/favorites" onClick={closeMenu}>Нравится</Link>}
           {isAuthenticated && <Link href="/profile" onClick={closeMenu}>Профиль</Link>}
           {isAuthenticated && <Link href="/messages" onClick={closeMenu}>Сообщения</Link>}

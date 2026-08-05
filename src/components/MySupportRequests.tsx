@@ -9,7 +9,7 @@ export function MySupportRequests() {
   useEffect(() => {
     void loadMySupportRequests()
       .then((loaded) => { setRequests(loaded); setIsLoading(false); })
-      .catch(() => setIsLoading(true));
+      .catch(() => setIsLoading(false));
   }, []);
 
   if (isLoading) return <ContentListSkeleton label="Обращения загружаются" />;

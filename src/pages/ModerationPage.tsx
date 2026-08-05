@@ -24,6 +24,7 @@ export function ModerationPage() {
     } catch {
       setHasLoadFailed(true);
       setError('Не удалось загрузить удалённые работы. Возможно, миграция базы ещё не применена.');
+      setIsLoading(false);
     }
   }, []);
 
@@ -60,7 +61,7 @@ export function ModerationPage() {
         <h1>{isDeveloper(user) ? 'Удалённые работы' : 'Мои апелляции'}</h1>
         {user === undefined ? <ContentListSkeleton label="Модерация загружается" /> : !user ? <p>Войди в аккаунт, чтобы открыть этот раздел.</p> : (
           <>
-            {isLoading || hasLoadFailed ? <ContentListSkeleton label="Удалённые работы загружаются" /> : <>{error && <p className="form-error">{error}</p>}{artworks.length === 0 ? <p className="support-card">Удалённых работ пока нет.</p> : <div className="moderation-list">
+            {isLoading ? <ContentListSkeleton label="Удалённые работы загружаются" /> : hasLoadFailed ? <p className="form-error">{error}</p> : <>{error && <p className="form-error">{error}</p>}{artworks.length === 0 ? <p className="support-card">Удалённых работ пока нет.</p> : <div className="moderation-list">
               {artworks.map((artwork) => <ModeratedArtworkCard key={artwork.id} artwork={artwork} isDeveloper={isDeveloper(user)} onAppeal={(body) => appeal(artwork.id, body)} onRestore={() => restore(artwork.id)} />)}
             </div>}</>}
           </>

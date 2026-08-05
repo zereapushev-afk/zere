@@ -35,7 +35,8 @@ export function PublicProfilePage() {
           setArtworks(await loadArtworks(data.session?.user ?? null, id));
           setAreArtworksLoading(false);
         } catch {
-          setAreArtworksLoading(true);
+          setArtworks([]);
+          setAreArtworksLoading(false);
         }
       } catch {
         setProfile(undefined);
