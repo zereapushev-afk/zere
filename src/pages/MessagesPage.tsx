@@ -5,6 +5,8 @@ import { ConversationSidebar, type MessageConversation } from '../components/Con
 import { ContentListSkeleton } from '../components/ContentListSkeleton';
 import { SimpleHeader } from '../components/SimpleHeader';
 import { loadDirectMessages } from '../lib/messages';
+import { loadArtworks } from '../lib/artworks';
+import type { Artwork } from '../data/artworks';
 import { getAvatarUrl, loadPublicProfiles } from '../lib/profile';
 import { supabase } from '../lib/supabase';
 
@@ -15,12 +17,14 @@ export function MessagesPage() {
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [artworkMap, setArtworkMap] = useState<Map<string, Artwork>>(new Map());
   const refreshRequestRef = useRef(0);
 
   const refresh = useCallback(async (activeUser: User) => {
     const requestId = ++refreshRequestRef.current;
     try {
-      const messages = await loadDirectMessages();
+      const [messages, artworks] = await Promise.all([loadDirectMessages(), loadArtworks(activeUser)]);
+      setArtworkMap(new Map(artworks.map((artwork) => [artwork.id, artwork])));
       const partnerIds = [...new Set(messages.map((message) => message.sender_id === activeUser.id ? message.recipient_id : message.sender_id))];
       const profiles = await loadPublicProfiles(partnerIds);
       const profileMap = new Map(profiles.map((profile) => [profile.user_id, profile]));
@@ -86,7 +90,7 @@ export function MessagesPage() {
         {user === undefined || isLoading || error ? <ContentListSkeleton label="Сообщения загружаются" /> : !user ? <p className="support-card">Войди в аккаунт, чтобы увидеть сообщения.</p> : conversations.length === 0 ? <p className="support-card">Сообщений пока нет. Открой профиль автора, чтобы написать ему.</p> : (
           <div className={`messages-layout${isMobileChatOpen ? ' messages-layout--chat-open' : ''}`}>
             <ConversationSidebar conversations={conversations} activePartnerId={activePartnerId} currentUserId={user.id} onSelect={openConversation} />
-            {activeConversation && <ConversationCard currentUserId={user.id} partner={activeConversation.partner} messages={activeConversation.messages} avatarUrl={activeConversation.avatarUrl} onBack={() => setIsMobileChatOpen(false)} onSent={() => void refresh(user)} />}
+            {activeConversation && <ConversationCard currentUserId={user.id} partner={activeConversation.partner} messages={activeConversation.messages} avatarUrl={activeConversation.avatarUrl} artworkMap={artworkMap} onBack={() => setIsMobileChatOpen(false)} onSent={() => void refresh(user)} />}
           </div>
         )}
       </main>

@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type { DirectMessage } from '../lib/messages';
+import type { Artwork } from '../data/artworks';
 import type { UserProfile } from '../lib/profile';
 import { MessageComposer } from './MessageComposer';
+import { TradeOfferCard } from './TradeOfferCard';
 
 type ConversationCardProps = {
   currentUserId: string;
@@ -10,9 +12,10 @@ type ConversationCardProps = {
   onSent: () => void;
   avatarUrl: string | null;
   onBack?: () => void;
+  artworkMap: Map<string, Artwork>;
 };
 
-export function ConversationCard({ currentUserId, partner, messages, onSent, avatarUrl, onBack }: ConversationCardProps) {
+export function ConversationCard({ currentUserId, partner, messages, onSent, avatarUrl, onBack, artworkMap }: ConversationCardProps) {
   const messagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,7 +31,14 @@ export function ConversationCard({ currentUserId, partner, messages, onSent, ava
       </header>
       <div className="conversation-messages" ref={messagesRef}>
         {messages.map((message) => (
-          <div className={`message-bubble ${message.sender_id === currentUserId ? 'message-bubble--mine' : ''}`} key={message.id}>
+          <div className={`message-bubble${message.sender_id === currentUserId ? ' message-bubble--mine' : ''}${message.trade_status ? ' message-bubble--trade' : ''}`} key={message.id}>
+            {message.trade_status && <TradeOfferCard
+              message={message}
+              currentUserId={currentUserId}
+              offeredArtwork={artworkMap.get(message.offered_artwork_id ?? '')}
+              requestedArtwork={artworkMap.get(message.requested_artwork_id ?? '')}
+              onAnswered={onSent}
+            />}
             <p>{message.body}</p>
             <time>{new Date(message.created_at).toLocaleString('ru-RU')}</time>
           </div>
